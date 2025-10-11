@@ -28,6 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+TOKEN_MODEL = None
 
 # Application definition
 
@@ -44,7 +45,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django.contrib.sites",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "rest_framework.authtoken",
 ]
+
+SITE_ID = 1
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_EMAIL_VERIFICATION = "none"  # geliştirme için
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000"]
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -55,9 +70,17 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
+
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",                 # Django’nun klasik backend’i
+    "allauth.account.auth_backends.AuthenticationBackend",       # allauth
+)
+
 
 ROOT_URLCONF = 'proje_yonetimi.urls'
 
@@ -132,6 +155,20 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Sadece JWT kullan
+REST_USE_JWT = True  # (dj-rest-auth <= 6.x)
+
+REST_AUTH_TOKEN_MODEL = None
+
+DJ_REST_AUTH = {
+    "USE_JWT": True,          # (dj-rest-auth >= 7.x için)
+    "TOKEN_MODEL": None,      # ÖNEMLİ: authtoken gereksinimini kapat
+    # İsteğe bağlı cookie isimleri:
+    # "JWT_AUTH_COOKIE": "access",
+    # "JWT_AUTH_REFRESH_COOKIE": "refresh",
+}
+
+TOKEN_MODEL = None
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -142,3 +179,5 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+
+TOKEN_MODEL = None

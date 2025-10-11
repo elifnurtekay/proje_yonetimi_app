@@ -61,6 +61,11 @@ ACCOUNT_EMAIL_VERIFICATION = "none"  # geliştirme için
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000"]
 
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+
 AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
@@ -166,6 +171,10 @@ DJ_REST_AUTH = {
     # İsteğe bağlı cookie isimleri:
     # "JWT_AUTH_COOKIE": "access",
     # "JWT_AUTH_REFRESH_COOKIE": "refresh",
+}
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    "REGISTER_SERIALIZER": "users.serializers.RegisterSerializer",
 }
 
 TOKEN_MODEL = None

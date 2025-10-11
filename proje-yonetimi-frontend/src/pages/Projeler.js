@@ -7,6 +7,7 @@ import {
   deleteProject,
   addProject,             // ⬅️ eklendi
 } from "../api";
+import { ensureEffectiveProgress, ensureListEffectiveProgress } from "../utils/progress";
 import "./Gorevler.css";   // kart ve buton stillerini burada kullanıyoruz
 
 export default function Projeler() {
@@ -44,14 +45,24 @@ export default function Projeler() {
 
   useEffect(() => {
     setLoading(true);
-    fetchProjects(token).then(setProjects).finally(() => setLoading(false));
+    fetchProjects(token)
+      .then((data) => ensureListEffectiveProgress(data, { startKey: "start_date", endKey: "end_date" }))
+      .then(setProjects)
+      .finally(() => setLoading(false));
   }, [token]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProjects((prev) => ensureListEffectiveProgress(prev, { startKey: "start_date", endKey: "end_date" }, true));
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Görüntüle
   const handleView = async (id) => {
     try {
       const data = await fetchProjectById(id, token);
-      setViewData(data);
+      setViewData(ensureEffectiveProgress(data, { startKey: "start_date", endKey: "end_date" }));
       setViewOpen(true);
     } catch (e) {
       alert(e.message || "Proje alınamadı");
@@ -62,14 +73,15 @@ export default function Projeler() {
   const handleEditOpen = async (id) => {
     try {
       const data = await fetchProjectById(id, token);
+      const enriched = ensureEffectiveProgress(data, { startKey: "start_date", endKey: "end_date" });
       setEditId(id);
       setEditForm({
-        name: data.name || "",
-        description: data.description || "",
-        status: data.status || "Aktif",
-        progress: Number(data.progress || 0),
-        start_date: data.start_date || "",
-        end_date: data.end_date || "",
+        name: enriched.name || "",
+        description: enriched.description || "",
+        status: enriched.status || "Aktif",
+        progress: Number(enriched.progress || 0),
+        start_date: enriched.start_date || "",
+        end_date: enriched.end_date || "",
       });
       setEditOpen(true);
     } catch (e) {
@@ -86,9 +98,8 @@ export default function Projeler() {
         progress: Number(editForm.progress || 0),
       };
       const updated = await updateProject(editId, body, token);
-      setProjects((prev) =>
-        prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p))
-      );
+      const normalized = ensureEffectiveProgress(updated, { startKey: "start_date", endKey: "end_date" }, true);
+      setProjects((prev) => prev.map((p) => (p.id === normalized.id ? { ...p, ...normalized } : p)));
       setEditOpen(false);
     } catch (e) {
       alert(e.message || "Proje güncellenemedi");
@@ -115,7 +126,8 @@ export default function Projeler() {
         progress: Number(addForm.progress || 0),
       };
       const created = await addProject(body, token);
-      setProjects((prev) => [created, ...prev]); // liste başına ekle
+      const normalized = ensureEffectiveProgress(created, { startKey: "start_date", endKey: "end_date" }, true);
+      setProjects((prev) => [normalized, ...prev]);
       setAddOpen(false);
       setAddForm({
         name: "",
@@ -168,14 +180,17 @@ export default function Projeler() {
                 <br />
                 <b>Bitiş:</b> {p.end_date || "-"}
                 <br />
-                <b>İlerleme:</b> %{p.progress || 0}
+                <b>İlerleme:</b> %{p.effective_progress ?? p.progress ?? 0}
+                {typeof p.progress === "number" && p.progress !== p.effective_progress ? (
+                  <span className="progress-note">(manuel %{p.progress})</span>
+                ) : null}
               </div>
 
               <div className="task-progress">
                 <div className="progress-bar-bg">
                   <div
                     className="progress-bar-fill"
-                    style={{ width: `${p.progress || 0}%`, background: "#7C4DFF" }}
+                    style={{ width: `${p.effective_progress ?? p.progress ?? 0}%`, background: "#7C4DFF" }}
                   />
                 </div>
               </div>
@@ -231,7 +246,10 @@ export default function Projeler() {
               <br />
               <b>Bitiş:</b> {viewData.end_date || "-"}
               <br />
-              <b>İlerleme:</b> %{viewData.progress || 0}
+              <b>İlerleme:</b> %{viewData.effective_progress ?? viewData.progress ?? 0}
+              {typeof viewData.progress === "number" && viewData.progress !== viewData.effective_progress ? (
+                <span className="progress-note">manuel %{viewData.progress}</span>
+              ) : null}
             </div>
 
             <div style={{ display: "flex", gap: 10, marginTop: 18 }}>

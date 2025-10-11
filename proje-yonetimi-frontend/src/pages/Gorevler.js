@@ -11,6 +11,7 @@ import {
   deleteTask, // opsiyonel
 } from "../api";
 import "./Gorevler.css";
+import { ensureEffectiveProgress, ensureListEffectiveProgress } from "../utils/progress";
 
 export default function Gorevler() {
   const token = localStorage.getItem("access");
@@ -65,13 +66,21 @@ export default function Gorevler() {
     setLoading(true);
     Promise.all([fetchTasks(token), fetchProjects(token), fetchUsers(token)])
       .then(([t, p, u]) => {
-        setTasks(t);
-        setProjects(p);
+        setTasks(ensureListEffectiveProgress(t, { startKey: "start_date", dueKey: "due_date" }));
+        setProjects(ensureListEffectiveProgress(p, { startKey: "start_date", endKey: "end_date" }));
         setUsers(u);
       })
       .catch(() => alert("Görevler/Projeler/Kullanıcılar alınamadı!"))
       .finally(() => setLoading(false));
   }, [token]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTasks((prev) => ensureListEffectiveProgress(prev, { startKey: "start_date", dueKey: "due_date" }, true));
+      setProjects((prev) => ensureListEffectiveProgress(prev, { startKey: "start_date", endKey: "end_date" }, true));
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // assignee e-posta -> id eşleme (EKLE modalı)
   useEffect(() => {
@@ -120,7 +129,8 @@ export default function Gorevler() {
       const assigneeId = formAdd.assignee || null;
       const payload = { ...formAdd, assignee: assigneeId || null };
       const created = await addTask(payload, token);
-      setTasks((prev) => [created, ...prev]);
+      const normalized = ensureEffectiveProgress(created, { startKey: "start_date", dueKey: "due_date" }, true);
+      setTasks((prev) => [normalized, ...prev]);
       setAddOpen(false);
     } catch (err) {
       alert(err.message || "Görev eklenemedi!");
@@ -131,7 +141,7 @@ export default function Gorevler() {
   const openView = async (id) => {
     try {
       const data = await fetchTaskById(id, token);
-      setViewData(data);
+      setViewData(ensureEffectiveProgress(data, { startKey: "start_date", dueKey: "due_date" }));
       setViewOpen(true);
     } catch (e) {
       alert(e.message || "Görev alınamadı");
@@ -142,20 +152,21 @@ export default function Gorevler() {
   const openEdit = async (id) => {
     try {
       const data = await fetchTaskById(id, token);
+      const normalized = ensureEffectiveProgress(data, { startKey: "start_date", dueKey: "due_date" });
       setEditId(id);
       setFormEdit({
-        title: data.title || "",
-        description: data.description || "",
-        project: data.project || "",
-        assignee: data.assignee || "",
-        start_date: data.start_date || "",
-        end_date: data.end_date || "",
-        due_date: data.due_date || "",
-        status: data.status || "Devam Ediyor",
-        progress: Number(data.progress || 0),
+        title: normalized.title || "",
+        description: normalized.description || "",
+        project: normalized.project || "",
+        assignee: normalized.assignee || "",
+        start_date: normalized.start_date || "",
+        end_date: normalized.end_date || "",
+        due_date: normalized.due_date || "",
+        status: normalized.status || "Devam Ediyor",
+        progress: Number(normalized.progress || 0),
       });
       // e-posta inputunu doldur
-      const found = users.find((u) => u.id === data.assignee);
+      const found = users.find((u) => u.id === normalized.assignee);
       setAssigneeEmailEdit(found?.email || "");
       setEditOpen(true);
     } catch (e) {
@@ -169,7 +180,8 @@ export default function Gorevler() {
       const assigneeId = formEdit.assignee || null;
       const payload = { ...formEdit, assignee: assigneeId || null };
       const updated = await updateTask(editId, payload, token);
-      setTasks((prev) => prev.map((t) => (t.id === updated.id ? { ...t, ...updated } : t)));
+      const normalized = ensureEffectiveProgress(updated, { startKey: "start_date", dueKey: "due_date" }, true);
+      setTasks((prev) => prev.map((t) => (t.id === normalized.id ? { ...t, ...normalized } : t)));
       setEditOpen(false);
     } catch (e) {
       alert(e.message || "Görev güncellenemedi");
@@ -242,10 +254,15 @@ export default function Gorevler() {
                 <div className="progress-bar-bg">
                   <div
                     className="progress-bar-fill"
-                    style={{ width: `${task.progress || 0}%`, background: "#4F8CFF" }}
+                    style={{ width: `${task.effective_progress ?? task.progress ?? 0}%`, background: "#4F8CFF" }}
                   />
                 </div>
-                <span className="progress-label">{task.progress || 0}% {task.status}</span>
+                <span className="progress-label">
+                  %{task.effective_progress ?? task.progress ?? 0} {task.status}
+                  {typeof task.progress === "number" && task.progress !== task.effective_progress ? (
+                    <span className="progress-note">manuel %{task.progress}</span>
+                  ) : null}
+                </span>
               </div>
 
               <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
@@ -300,7 +317,10 @@ export default function Gorevler() {
               <b>Bitiş:</b> {viewData.end_date || "-"} <br />
               <b>Son Tarih:</b> {viewData.due_date || "-"} <br />
               <b>Durum:</b> {viewData.status || "-"} <br />
-              <b>İlerleme:</b> %{viewData.progress || 0}
+              <b>İlerleme:</b> %{viewData.effective_progress ?? viewData.progress ?? 0}
+              {typeof viewData.progress === "number" && viewData.progress !== viewData.effective_progress ? (
+                <span className="progress-note">manuel %{viewData.progress}</span>
+              ) : null}
             </div>
             <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
               <button

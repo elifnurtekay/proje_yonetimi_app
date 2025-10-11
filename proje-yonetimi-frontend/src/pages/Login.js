@@ -1,7 +1,7 @@
 // src/pages/Login.js
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./Login.css";
-import { fetchMe } from "../api"; // me için
+import { fetchMe, googleLogin } from "../api"; // me için
 
 // Bu dosyada kendi login isteğimizi atacağız (api.js'ye dokunmadan)
 async function loginCompat(email, password) {
@@ -58,34 +58,136 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
+  const [googleReady, setGoogleReady] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const googleDivRef = useRef(null);
 
-  async function handleSubmit(e) {
+  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+  const googleEnabled = Boolean(googleClientId);
+
+  const finalizeLogin = useCallback(async (payload) => {
+    if (!payload?.access) {
+      throw new Error("Sunucudan access token dönmedi.");
+    }
+
+    localStorage.setItem("access", payload.access);
+    if (payload.refresh) {
+      localStorage.setItem("refresh", payload.refresh);
+    }
+
+    let userData = payload.user;
+    if (!userData) {
+      try {
+        userData = await fetchMe(payload.access);
+      } catch (error) {
+        console.error("Kullanıcı bilgisi alınamadı:", error);
+      }
+    }
+
+    if (userData) {
+      localStorage.setItem("user", JSON.stringify(normalizeUser(userData)));
+    }
+
+    window.location.href = "/";
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErr("");
 
     try {
-      const data = await loginCompat(email, password); // <-- burayı kullanıyoruz
-      if (!data?.access) {
-        throw new Error("Sunucudan access token dönmedi.");
-      }
-
-      // token sakla
-      localStorage.setItem("access", data.access);
-
-      // kullanıcıyı çek ve yaz
-      try {
-        const me = await fetchMe(data.access);
-        localStorage.setItem("user", JSON.stringify(normalizeUser(me)));
-      } catch (e) {
-        console.error("me getirilemedi:", e);
-      }
-
-      // yönlendir
-      window.location.href = "/";
+      const data = await loginCompat(email, password);
+      await finalizeLogin(data);
     } catch (ex) {
       setErr(ex.message || "Giriş başarısız.");
     }
-  }
+  };
+
+  const handleGoogleCredential = useCallback(async (response) => {
+    if (!response?.credential) {
+      setErr("Google oturumundan kimlik bilgisi alınamadı.");
+      return;
+    }
+
+    setErr("");
+    setGoogleLoading(true);
+    try {
+      const data = await googleLogin(response.credential);
+      await finalizeLogin(data);
+    } catch (error) {
+      setErr(error.message || "Google ile giriş başarısız.");
+    } finally {
+      setGoogleLoading(false);
+    }
+  }, [finalizeLogin]);
+
+  const renderGoogleButton = useCallback(() => {
+    if (!googleEnabled) return;
+    if (typeof window === "undefined") return;
+    const google = window.google;
+    if (!google?.accounts?.id) return;
+    if (!googleDivRef.current) return;
+
+    googleDivRef.current.innerHTML = "";
+    google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: handleGoogleCredential,
+    });
+    google.accounts.id.renderButton(googleDivRef.current, {
+      theme: "filled_blue",
+      size: "large",
+      shape: "pill",
+      text: "signin_with",
+      width: 320,
+    });
+    google.accounts.id.prompt();
+    setGoogleReady(true);
+  }, [googleClientId, googleEnabled, handleGoogleCredential]);
+
+  useEffect(() => {
+    if (!googleEnabled) return undefined;
+    if (typeof window === "undefined") return undefined;
+
+    if (window.google?.accounts?.id) {
+      renderGoogleButton();
+      return undefined;
+    }
+
+    let cancelled = false;
+    const existing = document.querySelector("script[data-google-client]");
+    const onLoad = () => {
+      if (!cancelled) {
+        renderGoogleButton();
+      }
+    };
+
+    if (existing) {
+      existing.addEventListener("load", onLoad);
+      return () => {
+        cancelled = true;
+        existing.removeEventListener("load", onLoad);
+      };
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.dataset.googleClient = "true";
+    script.onload = onLoad;
+    script.onerror = () => {
+      if (!cancelled) {
+        setErr((prev) => prev || "Google girişi bileşeni yüklenemedi.");
+      }
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      cancelled = true;
+      script.onload = null;
+      script.onerror = null;
+    };
+  }, [googleEnabled, renderGoogleButton]);
 
   return (
     <main className="auth-page">
@@ -137,6 +239,26 @@ export default function Login() {
             <button className="btn-primary" type="submit">Giriş Yap</button>
           </div>
         </form>
+
+        {googleEnabled ? (
+          <div className="auth-google-block">
+            <div className="auth-divider"><span>veya</span></div>
+            <div className={`google-button-shell ${(googleLoading || !googleReady) ? "is-loading" : ""}`}>
+              <div ref={googleDivRef} className="google-button-host" />
+            </div>
+            <div className="google-status">
+              {googleLoading
+                ? "Google ile giriş yapılıyor…"
+                : googleReady
+                  ? "Google hesabınızla tek dokunuşla giriş yapın."
+                  : "Google butonu yükleniyor…"}
+            </div>
+          </div>
+        ) : (
+          <div className="auth-google-disabled">
+            Google ile giriş için yönetici tarafından REACT_APP_GOOGLE_CLIENT_ID değeri tanımlanmalıdır.
+          </div>
+        )}
 
         <div className="auth-alt">
           Hesabınız yok mu? <a href="/kayit">Kayıt Ol</a>

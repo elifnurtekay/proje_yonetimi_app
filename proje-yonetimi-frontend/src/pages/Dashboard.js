@@ -1,6 +1,7 @@
 // src/pages/Dashboard.js
 import React, { useEffect, useState } from "react";
 import { fetchDashboardSummary } from "../api";
+import { ensureEffectiveProgress, ensureListEffectiveProgress } from "../utils/progress";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -37,18 +38,21 @@ export default function Dashboard() {
               title: t.title,
               status: t.status,
               progress: t.progress ?? 0,
+              manual_progress: t.manual_progress,
+              dynamic_progress: t.dynamic_progress,
+              start_date: t.start_date,
+              end_date: t.end_date,
               due_date: t.due_date,
-              // backend alan adları project__name, assignee__first_name/last_name
-              project_name: t.project__name,
-              assignee_name: [t.assignee__first_name, t.assignee__last_name]
+              project_name: t.project_name || t.project__name,
+              assignee_name: t.assignee_name || [t.assignee__first_name, t.assignee__last_name]
                 .filter(Boolean)
                 .join(" ") || null,
             }))
           : [];
 
         setCards(mappedCards);
-        setRecentProjects(mappedRecent);
-        setUpcomingTasks(mappedUpcoming);
+        setRecentProjects(ensureListEffectiveProgress(mappedRecent));
+        setUpcomingTasks(ensureListEffectiveProgress(mappedUpcoming, { startKey: "start_date", dueKey: "due_date" }));
       })
       .catch((err) => {
         console.error(err);
@@ -62,6 +66,14 @@ export default function Dashboard() {
         setUpcomingTasks([]);
       })
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRecentProjects((prev) => ensureListEffectiveProgress(prev, undefined, true));
+      setUpcomingTasks((prev) => ensureListEffectiveProgress(prev, { startKey: "start_date", dueKey: "due_date" }, true));
+    }, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -89,7 +101,7 @@ export default function Dashboard() {
                     <div style={{ color: "#70727e", fontSize: 13 }}>{p.description}</div>
                   ) : null}
                   <div style={{ color: "#70727e", fontSize: 13 }}>
-                    Durum: {p.status || "-"} • %{p.progress ?? 0}
+                    Durum: {p.status || "-"} • %{ensureEffectiveProgress(p).effective_progress}
                   </div>
                 </li>
               ))}
@@ -116,7 +128,7 @@ export default function Dashboard() {
                     <div style={{ textAlign: "right" }}>
                       <div style={{ fontWeight: 600 }}>{t.due_date}</div>
                       <div style={{ color: "#70727e", fontSize: 13 }}>
-                        {t.status} • %{t.progress ?? 0}
+                        {t.status} • %{ensureEffectiveProgress(t, { startKey: "start_date", dueKey: "due_date" }).effective_progress}
                       </div>
                     </div>
                   </div>

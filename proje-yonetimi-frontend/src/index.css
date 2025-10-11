@@ -28,7 +28,12 @@
 }
 
 /* Genel arka plan ve yazı */
-body{ background: var(--bg); color: var(--text); }
+body{
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+}
 
 /* Kart kutuları */
 .ui-card{

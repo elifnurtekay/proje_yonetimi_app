@@ -16,7 +16,7 @@ function App() {
     <Router>
       <Sidebar />
       <Topbar />
-      <div style={{ marginLeft: 220, marginTop: 56, padding: 32 }}>
+      <div style={{ marginLeft: 260, marginTop: 88, padding: 32 }}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/projeler" element={<Projeler />} />

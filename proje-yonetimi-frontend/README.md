@@ -1,3 +1,17 @@
+# Proje Yönetimi Arayüzü
+
+Bu ön yüz Create React App ile başlatıldı ancak proje yönetimi paneline özel bileşenler içerir.
+
+## Google ile Giriş
+
+Google kimliği ile giriş özelliğini etkinleştirmek için `.env` dosyanıza aşağıdaki değeri ekleyin:
+
+```
+REACT_APP_GOOGLE_CLIENT_ID=google-istemci-idniz.apps.googleusercontent.com
+```
+
+Ardından backend tarafında `GOOGLE_CLIENT_ID` ortam değişkenini de tanımlayın. Kimlik doğrulama için yeni `/api/users/google-login/` uç noktası kullanılmaktadır.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

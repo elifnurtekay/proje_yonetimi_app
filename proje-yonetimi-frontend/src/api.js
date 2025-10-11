@@ -75,6 +75,29 @@ export async function loginUser(email, password) {
   return await res.json();
 }
 
+export async function googleLogin(credential) {
+  const res = await fetch(API_BASE + "users/google-login/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ credential }),
+  });
+
+  const text = await res.text().catch(() => "");
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (err) {
+    console.error("Google login yanıtı çözümlenemedi", err);
+  }
+
+  if (!res.ok) {
+    const detail = data?.detail || data?.error || "Google ile giriş yapılamadı.";
+    throw new Error(detail);
+  }
+
+  return data;
+}
+
 export async function registerUser(data) {
   const res = await fetch(API_BASE + "users/register/", {
     method: "POST",

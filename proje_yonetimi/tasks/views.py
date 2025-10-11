@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from .models import Task
 from users.models import User
 from .serializers import TaskSerializer
+from .utils import task_progress_info
 from rest_framework.permissions import IsAuthenticated
 
 """class TaskViewSet(viewsets.ModelViewSet):
@@ -71,21 +72,26 @@ class GanttChartTasksView(APIView):
 
         qs = qs.distinct()
 
-        data = [{
-            "id": t.id,
-            "title": t.title,
-            "start": t.start_date,
-            "end": t.end_date,
-            "progress": t.progress or 0,
-            "status": t.status,
-            "assignee": getattr(t.assignee, "email", None),
-            "dependencies": list(t.dependencies.values_list("id", flat=True)),
-            "project_name": getattr(t.project, "name", None),
-            "assignee_name": (
-                (f"{t.assignee.first_name} {t.assignee.last_name}".strip() if t.assignee else None)
-                or (t.assignee.email if t.assignee else None)
-            ),
-        } for t in qs]
+        data = []
+        for t in qs:
+            progress = task_progress_info(t)
+            data.append({
+                "id": t.id,
+                "title": t.title,
+                "start": t.start_date,
+                "end": t.end_date,
+                "progress": progress.effective,
+                "manual_progress": progress.manual,
+                "dynamic_progress": progress.dynamic,
+                "status": t.status,
+                "assignee": getattr(t.assignee, "email", None),
+                "dependencies": list(t.dependencies.values_list("id", flat=True)),
+                "project_name": getattr(t.project, "name", None),
+                "assignee_name": (
+                    (f"{t.assignee.first_name} {t.assignee.last_name}".strip() if t.assignee else None)
+                    or (t.assignee.email if t.assignee else None)
+                ),
+            })
         return Response(data)
 
 

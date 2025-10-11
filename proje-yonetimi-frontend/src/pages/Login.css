@@ -151,6 +151,73 @@
   font-size: 13px;
 }
 
+.auth-divider{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  color:#6B778C;
+  font-size:13px;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+  font-weight:600;
+}
+.auth-divider::before,
+.auth-divider::after{
+  content:"";
+  flex:1;
+  height:1px;
+  background:#E6E8F0;
+}
+
+.auth-google-block{
+  margin-top:24px;
+  display:grid;
+  gap:12px;
+}
+
+.google-button-shell{
+  position:relative;
+  min-height:46px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.google-button-shell.is-loading::after{
+  content:"";
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  border:3px solid rgba(9,30,66,.15);
+  border-top-color:#0052CC;
+  animation:auth-spin .85s linear infinite;
+}
+
+.google-button-host > div{
+  margin:0 auto;
+}
+
+.google-status{
+  text-align:center;
+  font-size:13px;
+  color:#6B778C;
+}
+
+.auth-google-disabled{
+  margin-top:20px;
+  background:#F4F5F7;
+  border-radius:12px;
+  padding:12px 16px;
+  text-align:center;
+  font-size:13px;
+  color:#6B778C;
+}
+
+@keyframes auth-spin{
+  from{ transform:rotate(0deg); }
+  to{ transform:rotate(360deg); }
+}
+
 /* Yükleniyor durumları (opsiyonel) */
 .btn-primary[disabled]{
   opacity:.7;

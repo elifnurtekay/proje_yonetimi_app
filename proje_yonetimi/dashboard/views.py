@@ -2,12 +2,15 @@
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Q
+from django.db.models.functions import Coalesce
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from projects.models import Project
+from projects.utils import project_progress_info
 from tasks.models import Task
+from tasks.utils import task_progress_info
 from users.models import User
 
 """def visible_project_ids_for(user):
@@ -52,8 +55,8 @@ class DashboardSummaryView(APIView):
         # if user.is_superuser:
         #     visible_ids = list(Project.objects.all().values_list("id", flat=True))
 
-        projects_qs = Project.objects.filter(id__in=visible_ids)
-        tasks_qs = Task.objects.filter(project_id__in=visible_ids)
+        projects_qs = Project.objects.filter(id__in=visible_ids).prefetch_related('tasks')
+        tasks_qs = Task.objects.filter(project_id__in=visible_ids).select_related('project', 'assignee')
 
         toplam_proje = projects_qs.count()
         aktif_gorev = tasks_qs.filter(status__in=["Aktif", "Devam Ediyor"]).count()
@@ -65,22 +68,44 @@ class DashboardSummaryView(APIView):
         ekip_uyesi = User.objects.filter(id__in=set(owner_ids) | set(assignee_ids)).distinct().count()
 
         # Son projeler
-        son_projeler = list(
-            projects_qs.order_by("-start_date", "-id")[:3]
-            .values("id", "name", "description", "status", "progress")
-        )
+        son_projeler = []
+        ordered_projects = projects_qs.annotate(_order=Coalesce("start_date", "created_at"))
+        for project in ordered_projects.order_by("-_order", "-id")[:3]:
+            payload = project_progress_info(project)
+            son_projeler.append({
+                "id": project.id,
+                "name": project.name,
+                "description": project.description,
+                "status": project.status,
+                "start_date": project.start_date,
+                "end_date": project.end_date,
+                "progress": payload.effective,
+                "manual_progress": payload.manual,
+                "dynamic_progress": payload.dynamic,
+            })
 
         # Yaklaşan görevler (14 gün)
         today = timezone.now().date()
         soon = today + timedelta(days=14)
-        yaklasan_gorevler = list(
-            tasks_qs.filter(due_date__isnull=False, due_date__gte=today, due_date__lte=soon)
-                    .order_by("due_date")[:3]
-                    .values(
-                        "id", "title", "status", "progress", "due_date",
-                        "project__name", "assignee__first_name", "assignee__last_name"
-                    )
-        )
+        yaklasan_gorevler = []
+        for task in tasks_qs.filter(due_date__isnull=False, due_date__gte=today, due_date__lte=soon).order_by("due_date")[:3]:
+            payload = task_progress_info(task)
+            yaklasan_gorevler.append({
+                "id": task.id,
+                "title": task.title,
+                "status": task.status,
+                "start_date": task.start_date,
+                "end_date": task.end_date,
+                "due_date": task.due_date,
+                "project_name": getattr(task.project, "name", None),
+                "assignee_name": (
+                    f"{getattr(task.assignee, 'first_name', '')} {getattr(task.assignee, 'last_name', '')}".strip()
+                    or getattr(task.assignee, 'email', None)
+                ),
+                "progress": payload.effective,
+                "manual_progress": payload.manual,
+                "dynamic_progress": payload.dynamic,
+            })
 
         return Response({
             "toplam_proje": toplam_proje,

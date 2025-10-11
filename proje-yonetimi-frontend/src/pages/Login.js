@@ -1,7 +1,7 @@
 // src/pages/Login.js
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./Login.css";
-import { fetchMe, googleLogin } from "../api"; // me için
+import { fetchMe, fetchGoogleConfig, googleLogin } from "../api"; // me için
 
 // Bu dosyada kendi login isteğimizi atacağız (api.js'ye dokunmadan)
 async function loginCompat(email, password) {
@@ -54,6 +54,8 @@ function normalizeUser(u) {
   };
 }
 
+const ENV_GOOGLE_CLIENT_ID = (process.env.REACT_APP_GOOGLE_CLIENT_ID || "").trim();
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,8 +64,13 @@ export default function Login() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const googleDivRef = useRef(null);
 
-  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-  const googleEnabled = Boolean(googleClientId);
+  const [googleConfig, setGoogleConfig] = useState({
+    clientId: ENV_GOOGLE_CLIENT_ID,
+    enabled: Boolean(ENV_GOOGLE_CLIENT_ID),
+  });
+
+  const googleClientId = googleConfig.clientId;
+  const googleEnabled = Boolean(googleConfig.enabled && googleClientId);
 
   const finalizeLogin = useCallback(async (payload) => {
     if (!payload?.access) {
@@ -143,6 +150,37 @@ export default function Login() {
     google.accounts.id.prompt();
     setGoogleReady(true);
   }, [googleClientId, googleEnabled, handleGoogleCredential]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadGoogleConfig() {
+      try {
+        const cfg = await fetchGoogleConfig();
+        if (!isMounted) return;
+        if (cfg?.enabled && cfg?.client_id) {
+          setGoogleConfig({ clientId: cfg.client_id, enabled: true });
+        } else if (!ENV_GOOGLE_CLIENT_ID) {
+          setGoogleConfig({ clientId: "", enabled: false });
+        }
+      } catch (error) {
+        console.warn("Google yapılandırması alınamadı", error);
+      }
+    }
+
+    loadGoogleConfig();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!googleEnabled) {
+      setGoogleReady(false);
+      setGoogleLoading(false);
+    }
+  }, [googleEnabled]);
 
   useEffect(() => {
     if (!googleEnabled) return undefined;
@@ -256,7 +294,7 @@ export default function Login() {
           </div>
         ) : (
           <div className="auth-google-disabled">
-            Google ile giriş için yönetici tarafından REACT_APP_GOOGLE_CLIENT_ID değeri tanımlanmalıdır.
+            Google ile giriş şu anda etkin değil. Lütfen daha sonra tekrar deneyin.
           </div>
         )}
 

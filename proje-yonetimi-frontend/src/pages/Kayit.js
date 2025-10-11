@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { fetchMe, googleLogin, registerUser } from "../api";
+import { fetchMe, fetchGoogleConfig, googleLogin, registerUser } from "../api";
 import "./Login.css";
+
+const ENV_GOOGLE_CLIENT_ID = (process.env.REACT_APP_GOOGLE_CLIENT_ID || "").trim();
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -14,10 +16,14 @@ export default function Register() {
   const [err, setErr] = useState("");
   const [googleReady, setGoogleReady] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleConfig, setGoogleConfig] = useState({
+    clientId: ENV_GOOGLE_CLIENT_ID,
+    enabled: Boolean(ENV_GOOGLE_CLIENT_ID),
+  });
   const googleDivRef = useRef(null);
 
-  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-  const googleEnabled = Boolean(googleClientId);
+  const googleClientId = googleConfig.clientId;
+  const googleEnabled = Boolean(googleConfig.enabled && googleClientId);
 
   function setField(k, v){ setForm(s => ({...s, [k]: v})); }
 
@@ -181,6 +187,37 @@ export default function Register() {
     };
   }, [googleEnabled, renderGoogleButton]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadGoogleConfig() {
+      try {
+        const cfg = await fetchGoogleConfig();
+        if (!isMounted) return;
+        if (cfg?.enabled && cfg?.client_id) {
+          setGoogleConfig({ clientId: cfg.client_id, enabled: true });
+        } else if (!ENV_GOOGLE_CLIENT_ID) {
+          setGoogleConfig({ clientId: "", enabled: false });
+        }
+      } catch (error) {
+        console.warn("Google yapılandırması alınamadı", error);
+      }
+    }
+
+    loadGoogleConfig();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!googleEnabled) {
+      setGoogleReady(false);
+      setGoogleLoading(false);
+    }
+  }, [googleEnabled]);
+
   return (
     <main className="auth-page">
       <section className="auth-card">
@@ -258,7 +295,7 @@ export default function Register() {
           </div>
         ) : (
           <div className="auth-google-disabled">
-            Google ile kayıt için yönetici tarafından REACT_APP_GOOGLE_CLIENT_ID değeri tanımlanmalıdır.
+            Google ile kayıt seçeneği şu anda etkin değil. Dilerseniz e-posta ile kayıt olabilirsiniz.
           </div>
         )}
 

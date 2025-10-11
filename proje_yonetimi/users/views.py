@@ -113,3 +113,15 @@ class GoogleLoginView(APIView):
             "user": serializer.data,
             "created": created,
         })
+
+
+class GoogleConfigView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        client_id = settings.GOOGLE_CLIENT_ID or ""
+        return Response({
+            "client_id": client_id,
+            "enabled": bool(client_id),
+        })
+

@@ -98,6 +98,29 @@ export async function googleLogin(credential) {
   return data;
 }
 
+export async function fetchGoogleConfig() {
+  const res = await fetch(API_BASE + "users/google-config/");
+
+  const text = await res.text().catch(() => "");
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (error) {
+    console.error("Google yapılandırması çözümlenemedi", error);
+  }
+
+  if (!res.ok) {
+    const detail = data?.detail || data?.error || "Google yapılandırması alınamadı.";
+    throw new Error(detail);
+  }
+
+  return {
+    client_id: data?.client_id || "",
+    enabled: Boolean(data?.enabled && data?.client_id),
+    raw: data,
+  };
+}
+
 export async function registerUser(data) {
   const res = await fetch(API_BASE + "users/register/", {
     method: "POST",

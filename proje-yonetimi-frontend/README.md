@@ -4,13 +4,13 @@ Bu ön yüz Create React App ile başlatıldı ancak proje yönetimi paneline ö
 
 ## Google ile Giriş
 
-Google kimliği ile giriş özelliğini etkinleştirmek için `.env` dosyanıza aşağıdaki değeri ekleyin:
+Google kimliği ile giriş/kayıt özelliğini etkinleştirmek için backend ortamınıza aşağıdaki değeri eklemeniz yeterlidir:
 
 ```
-REACT_APP_GOOGLE_CLIENT_ID=google-istemci-idniz.apps.googleusercontent.com
+GOOGLE_CLIENT_ID=google-istemci-idniz.apps.googleusercontent.com
 ```
 
-Ardından backend tarafında `GOOGLE_CLIENT_ID` ortam değişkenini de tanımlayın. Kimlik doğrulama için yeni `/api/users/google-login/` uç noktası kullanılmaktadır.
+Ön yüz uygulaması bu bilgiyi `/api/users/google-config/` uç noktasından otomatik olarak alır. İsterseniz geliştirme sırasında `REACT_APP_GOOGLE_CLIENT_ID` değerini de tanımlayarak backend'i beklemeden butonu test edebilirsiniz.
 
 # Getting Started with Create React App
 

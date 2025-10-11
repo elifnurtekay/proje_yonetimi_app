@@ -1,0 +1,59 @@
+.topbar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(80, 80, 110, 0.06);
+  padding: 0 32px;
+  z-index: 10;
+}
+
+.topbar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #21244d;
+}
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f4f6fa;
+  border-radius: 22px;
+  padding: 5px 14px 5px 10px;
+}
+
+.topbar-role {
+  background: #ede9fe;
+  color: #7c3aed;
+  font-size: 0.85rem;
+  border-radius: 9px;
+  padding: 2px 8px;
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+.topbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(80, 80, 110, 0.12);
+}
+
+.topbar-login-btn {
+  padding: 7px 18px;
+  border: none;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #4f46e5 30%, #9333ea 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.18s;
+  margin-left: 12px;
+}
+.topbar-login-btn:hover {
+  background: linear-gradient(90deg, #6366f1 20%, #a21caf 100%);
+}

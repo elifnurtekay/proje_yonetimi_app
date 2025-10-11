@@ -1,0 +1,13 @@
+/* Projeler.css */
+.projeler-container { padding: 32px; }
+.projeler-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.proje-ekle-btn { background: #8257e6; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-weight: 600; cursor: pointer; }
+.projeler-listesi { display: flex; gap: 24px; flex-wrap: wrap; }
+.proje-karti { background: #fff; border-radius: 14px; box-shadow: 0 1px 8px #0001; padding: 20px; width: 290px; }
+.proje-karti-header { display: flex; justify-content: space-between; align-items: center; }
+.proje-durum.aktif { color: #29c46a; font-weight: 600; }
+.proje-durum.tamamlandi { color: #6282ea; }
+.proje-ilerleme-bar-cerceve { background: #f0f0f0; border-radius: 8px; height: 10px; margin: 14px 0 6px 0; }
+.proje-ilerleme-bar { background: #8257e6; height: 100%; border-radius: 8px; transition: width 0.3s; }
+.proje-btn-grup { display: flex; gap: 8px; margin-top: 12px; }
+.proje-btn-grup button { background: #eaeaea; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; }

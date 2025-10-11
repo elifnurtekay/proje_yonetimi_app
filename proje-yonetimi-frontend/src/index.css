@@ -1,0 +1,87 @@
+:root{
+  /* Atlassian / Trello benzeri temel palet */
+  --brand:       #0052CC; /* primary */
+  --brand-600:   #0747A6;
+  --brand-50:    #E9F2FF;
+
+  --accent:      #00B8D9; /* info/secondary */
+  --success:     #36B37E;
+  --warning:     #FFAB00;
+  --danger:      #FF5630;
+  --purple:      #6554C0;
+
+  /* Nötr griler */
+  --text:        #172B4D;
+  --text-muted:  #6B778C;
+  --bg:          #F7F8FA;
+  --card:        #FFFFFF;
+  --line:        #E6E8F0;
+
+  /* UI */
+  --radius-lg:   18px;
+  --radius-md:   12px;
+  --radius-sm:   8px;
+
+  --shadow-sm:   0 2px 10px rgba(9,30,66,.08);
+  --shadow-md:   0 6px 18px rgba(9,30,66,.12);
+  --shadow-lg:   0 12px 28px rgba(9,30,66,.18);
+}
+
+/* Genel arka plan ve yazı */
+body{ background: var(--bg); color: var(--text); }
+
+/* Kart kutuları */
+.ui-card{
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 18px;
+}
+
+/* İstatistik kartı */
+.stat{
+  border-radius: var(--radius-lg);
+  color:#fff;
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+  position:relative;
+  overflow:hidden;
+}
+
+/* Chip/Rozetler */
+.chip{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius: 100px;
+  font-size:12px;
+  font-weight:600;
+}
+.chip--info{    background: var(--brand-50);  color: var(--brand-600); }
+.chip--success{ background: #E3FCEF;         color: #006644; }
+.chip--warn{    background: #FFFAE6;         color: #974F00; }
+.chip--danger{  background: #FFEBE6;         color: #BF2600; }
+
+/* Progress bar */
+.progress{
+  height:8px; border-radius:999px; background:#EEF1F6; overflow:hidden;
+}
+.progress__fill{ height:100%; background: linear-gradient(90deg,var(--brand),var(--accent)); }
+
+/* Butonlar */
+.btn{
+  background: var(--brand);
+  color:#fff; border:0; border-radius: 10px;
+  padding:10px 14px; font-weight:700; cursor:pointer;
+  box-shadow: var(--shadow-sm);
+}
+.btn:hover{ background: var(--brand-600); }
+
+/* Sidebar aktif */
+.sidebar-item.active{
+  background: var(--brand-50);
+  color: var(--brand-600);
+  border-radius: 10px;
+}
+
+/* Başlıklar */
+.h-title{ font-weight:800; letter-spacing:.2px; }

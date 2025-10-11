@@ -25,5 +25,8 @@ urlpatterns = [
     path('api/projects/', include('projects.urls')),
     path('api/tasks/', include('tasks.urls')),  
     path("api/dashboard/", include("dashboard.urls", namespace="dashboard")),  
+    path("accounts/", include("allauth.urls")),          # allauth
+    path("api/auth/", include("dj_rest_auth.urls")),     # opsiyonel: REST login
+    path("api/auth/registration/", include("dj_rest_auth.registration.urls")),
 ]
 

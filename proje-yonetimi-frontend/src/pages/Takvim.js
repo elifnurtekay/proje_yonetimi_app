@@ -141,7 +141,7 @@ export default function Takvim() {
                   {items && (
                     <div className="cal-badges">
                       {items.projects?.slice(0, 2).map((p) => (
-                        <div key={`p-${p.id}`} className="badge badge-project" title={`Proje bitişi: ${p.title}`}>
+                        <div key={`p-${p.id}`} className="badge badge-project" title={`Süreç bitişi: ${p.title}`}>
                           🗂 {p.title}
                         </div>
                       ))}
@@ -176,7 +176,7 @@ export default function Takvim() {
                   <>
                     {items.projects?.length > 0 && (
                       <>
-                        <div className="group-title">Proje Bitişleri</div>
+                        <div className="group-title">Süreç Bitişleri</div>
                         <ul className="list">
                           {items.projects.map((p) => (
                             <li key={`p-${p.id}`}>🗂 {p.title}</li>

@@ -10,7 +10,7 @@ export default function Topbar() {
 
   const titles = {
     "/": "Dashboard",
-    "/projeler": "Projeler",
+    "/projeler": "Süreçler",
     "/gorevler": "Görevler",
     "/gantt-chart": "Gantt Planı",
     "/takvim": "Takvim",

@@ -81,7 +81,7 @@ export default function Dashboard() {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))", gap: 18 }}>
-        <StatCard tone="brand"  title="Toplam Proje" value={cards.total_projects} icon="📁"/>
+        <StatCard tone="brand"  title="Toplam Süreç" value={cards.total_projects} icon="📍"/>
         <StatCard tone="green"  title="Aktif Görev"  value={cards.active_tasks}   icon="📝"/>
         <StatCard tone="purple" title="Ekip Üyesi"   value={cards.team_members}   icon="👥"/>
         <StatCard tone="orange" title="Tamamlanan"   value={cards.completed_tasks} icon="✅"/>
@@ -89,11 +89,11 @@ export default function Dashboard() {
       </div>
 
       <div style={{ marginTop: 28, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-        <Box title="Son Projeler">
+        <Box title="Son Süreçler">
           {loading ? (
             <Empty>Yükleniyor…</Empty>
           ) : recentProjects.length === 0 ? (
-            <Empty>Gösterilecek proje yok.</Empty>
+            <Empty>Gösterilecek süreç yok.</Empty>
           ) : (
             <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
               {recentProjects.map((p) => (
@@ -124,7 +124,7 @@ export default function Dashboard() {
                     <div>
                       <b>{t.title}</b>
                       <div style={{ color: "#70727e", fontSize: 13 }}>
-                        Proje: {t.project_name || "-"} • Atanan: {t.assignee_name || "-"}
+                        Süreç: {t.project_name || "-"} • Atanan: {t.assignee_name || "-"}
                       </div>
                     </div>
                     <div style={{ textAlign: "right" }}>

@@ -1,10 +1,28 @@
 .process-map {
   width: 100%;
   height: 420px;
-  border-radius: 18px;
+  border-radius: 22px;
   overflow: hidden;
-  box-shadow: 0 12px 32px rgba(26, 33, 88, 0.18);
-  border: 1px solid rgba(76, 110, 245, 0.25);
+  box-shadow: 0 28px 60px rgba(10, 18, 52, 0.42);
+  border: 1px solid rgba(124, 99, 255, 0.35);
+  position: relative;
+  isolation: isolate;
+}
+
+.process-map.leaflet-container {
+  background: rgba(14, 22, 63, 0.85);
+}
+
+.process-map::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 18% 22%, rgba(82, 227, 255, 0.22), transparent 50%),
+    radial-gradient(circle at 84% 18%, rgba(111, 81, 255, 0.25), transparent 50%),
+    radial-gradient(circle at 50% 82%, rgba(30, 62, 189, 0.2), transparent 52%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .process-map-icon {
@@ -21,6 +39,22 @@
   box-shadow: 0 14px 30px rgba(16, 24, 63, 0.4);
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.18);
+  position: relative;
+}
+
+.process-map-badge::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 18px;
+  height: 18px;
+  transform: translate(-50%, 50%) rotate(45deg);
+  background: rgba(25, 39, 92, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-top: none;
+  border-left: none;
+  box-shadow: 0 6px 18px rgba(9, 14, 44, 0.4);
 }
 
 .process-map-badge-title {

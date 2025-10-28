@@ -2,7 +2,11 @@ import React, { useEffect, useRef } from "react";
 import "./ProcessMap.css";
 
 const DEFAULT_CENTER = [39.925533, 32.866287];
-const DEFAULT_ZOOM = 12;
+const DEFAULT_ZOOM = 13;
+const TILE_LAYER =
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+const TILE_ATTRIBUTION =
+  'Tiles &copy; Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community';
 
 function escapeHtml(value = "") {
   return String(value)
@@ -64,33 +68,49 @@ export default function ProcessMap({ processes }) {
   const mapNode = useRef(null);
   const mapRef = useRef(null);
   const markerRef = useRef([]);
+  const leafletRef = useRef(null);
 
   useEffect(() => {
-    let cancelled = false;
+    let disposed = false;
 
     ensureLeafletAssets()
       .then((L) => {
-        if (cancelled || !mapNode.current) {
+        if (disposed || !mapNode.current) {
           return;
         }
 
-        const hasValidProcess = Array.isArray(processes)
-          ? processes.find((p) => p.latitude && p.longitude)
-          : null;
-        const center = hasValidProcess
-          ? [Number(hasValidProcess.latitude), Number(hasValidProcess.longitude)]
-          : DEFAULT_CENTER;
+        leafletRef.current = L;
 
         if (!mapRef.current) {
+          const hasValidProcess = Array.isArray(processes)
+            ? processes.find((p) => p.latitude && p.longitude)
+            : null;
+          const center = hasValidProcess
+            ? [Number(hasValidProcess.latitude), Number(hasValidProcess.longitude)]
+            : DEFAULT_CENTER;
+
           mapRef.current = L.map(mapNode.current, {
-            zoomControl: true,
-            attributionControl: true,
+            zoomControl: false,
+            attributionControl: false,
+            minZoom: 3,
           }).setView(center, DEFAULT_ZOOM);
 
-          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> katkıda bulunanlar',
+          L.tileLayer(TILE_LAYER, {
+            attribution: TILE_ATTRIBUTION,
+            maxZoom: 18,
           }).addTo(mapRef.current);
+
+          L.control
+            .zoom({
+              position: "topright",
+            })
+            .addTo(mapRef.current);
+
+          setTimeout(() => {
+            if (mapRef.current) {
+              mapRef.current.invalidateSize();
+            }
+          }, 150);
         }
 
         updateMarkers(L);
@@ -100,7 +120,7 @@ export default function ProcessMap({ processes }) {
       });
 
     return () => {
-      cancelled = true;
+      disposed = true;
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -111,11 +131,20 @@ export default function ProcessMap({ processes }) {
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current || !window.L) {
+    if (!mapRef.current) {
       return;
     }
 
-    updateMarkers(window.L);
+    const update = (L) => {
+      leafletRef.current = L;
+      updateMarkers(L);
+    };
+
+    if (leafletRef.current) {
+      update(leafletRef.current);
+    } else {
+      ensureLeafletAssets().then(update).catch((err) => console.error(err));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [processes]);
 
@@ -191,12 +220,15 @@ export default function ProcessMap({ processes }) {
       bounds.extend([lat, lng]);
     });
 
-    if (bounds.isValid()) {
-      if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
-        mapRef.current.setView(bounds.getCenter(), 15);
-      } else {
-        mapRef.current.fitBounds(bounds, { padding: [60, 60] });
-      }
+    if (!bounds.isValid()) {
+      mapRef.current.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+      return;
+    }
+
+    if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
+      mapRef.current.setView(bounds.getCenter(), 15);
+    } else {
+      mapRef.current.fitBounds(bounds, { padding: [60, 60] });
     }
   };
 

@@ -17,7 +17,7 @@ export default function Sidebar() {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <h2>Proje Yönetimi</h2>
+        <h2>Süreç Denetimi</h2>
         <span className="sidebar-version">v1.0</span>
       </div>
       <div className="sidebar-user">
@@ -40,7 +40,7 @@ export default function Sidebar() {
           Dashboard
         </NavLink>
         <NavLink to="/projeler" className="sidebar-link">
-          Projeler
+          Süreçler
         </NavLink>
         <NavLink to="/gorevler" className="sidebar-link">
           Görevler

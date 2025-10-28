@@ -7,7 +7,7 @@ export async function fetchProjects(token) {
       ...(token && { "Authorization": `Bearer ${token}` }),
     }
   });
-  if (!res.ok) throw new Error("Projeler alınamadı");
+  if (!res.ok) throw new Error("Süreçler alınamadı");
   return await res.json();
 }
 
@@ -25,8 +25,8 @@ export async function addProject(data, token) {
   if (!res.ok) {
     // Hata mesajını da console'a bas, anlaman kolay olsun!
     const errorData = await res.json();
-    console.error("Proje eklenemedi:", errorData);
-    throw new Error("Proje eklenemedi");
+    console.error("Süreç eklenemedi:", errorData);
+    throw new Error("Süreç eklenemedi");
   }
   return await res.json();
 }
@@ -241,7 +241,7 @@ export async function fetchProjectById(id, token) {
       ...(token && { Authorization: `Bearer ${token}` }),
     },
   });
-  if (!res.ok) throw new Error("Proje bulunamadı");
+  if (!res.ok) throw new Error("Süreç bulunamadı");
   return await res.json();
 }
 
@@ -254,7 +254,7 @@ export async function updateProject(id, data, token) {
     },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Proje güncellenemedi");
+  if (!res.ok) throw new Error("Süreç güncellenemedi");
   return await res.json();
 }
 
@@ -265,7 +265,7 @@ export async function deleteProject(id, token) {
       ...(token && { Authorization: `Bearer ${token}` }),
     },
   });
-  if (!res.ok) throw new Error("Proje silinemedi");
+  if (!res.ok) throw new Error("Süreç silinemedi");
   return true;
 }
 

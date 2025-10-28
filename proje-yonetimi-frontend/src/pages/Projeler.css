@@ -1,13 +1,51 @@
-/* Projeler.css */
-.projeler-container { padding: 32px; }
-.projeler-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.proje-ekle-btn { background: #8257e6; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-weight: 600; cursor: pointer; }
-.projeler-listesi { display: flex; gap: 24px; flex-wrap: wrap; }
-.proje-karti { background: #fff; border-radius: 14px; box-shadow: 0 1px 8px #0001; padding: 20px; width: 290px; }
-.proje-karti-header { display: flex; justify-content: space-between; align-items: center; }
-.proje-durum.aktif { color: #29c46a; font-weight: 600; }
-.proje-durum.tamamlandi { color: #6282ea; }
-.proje-ilerleme-bar-cerceve { background: #f0f0f0; border-radius: 8px; height: 10px; margin: 14px 0 6px 0; }
-.proje-ilerleme-bar { background: #8257e6; height: 100%; border-radius: 8px; transition: width 0.3s; }
-.proje-btn-grup { display: flex; gap: 8px; margin-top: 12px; }
-.proje-btn-grup button { background: #eaeaea; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.processes-page {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.processes-map-wrapper {
+  background: linear-gradient(135deg, rgba(13, 27, 78, 0.95), rgba(32, 51, 128, 0.88));
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 28px 60px rgba(15, 23, 63, 0.35);
+  border: 1px solid rgba(91, 115, 255, 0.4);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.processes-map-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(124, 99, 255, 0.25), transparent 55%);
+  pointer-events: none;
+}
+
+.processes-map-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.processes-map-header h3 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.4px;
+}
+
+.processes-map-header p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.78;
+}
+
+.processes-empty-map {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 15px;
+  margin-top: 12px;
+}

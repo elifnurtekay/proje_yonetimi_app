@@ -1,0 +1,56 @@
+.process-map {
+  width: 100%;
+  height: 420px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(26, 33, 88, 0.18);
+  border: 1px solid rgba(76, 110, 245, 0.25);
+}
+
+.process-map-icon {
+  border: none;
+  background: transparent;
+}
+
+.process-map-badge {
+  background: linear-gradient(145deg, rgba(25, 39, 92, 0.92), rgba(25, 39, 92, 0.78));
+  padding: 12px 16px;
+  border-radius: 16px;
+  color: #fff;
+  width: 220px;
+  box-shadow: 0 14px 30px rgba(16, 24, 63, 0.4);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.process-map-badge-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.process-map-badge-location {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.process-map-badge-status {
+  margin-top: 6px;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  opacity: 0.85;
+}
+
+.process-map-badge-progress {
+  margin-top: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.process-map-badge-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3d9df7, #4c6ef5);
+  border-radius: 999px;
+}

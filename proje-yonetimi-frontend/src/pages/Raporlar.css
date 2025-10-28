@@ -1,0 +1,75 @@
+.raporlar-container {
+  padding: 24px 0 8px 0;
+}
+.raporlar-container h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.raporlar-grid {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.rapor-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 14px 0 #b7b8e041;
+  padding: 20px 30px;
+  flex: 1 1 350px;
+  min-width: 320px;
+}
+.rapor-card-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 18px;
+}
+.rapor-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 12px;
+}
+.rapor-bar-bg {
+  background: #f3f6fb;
+  border-radius: 5px;
+  height: 8px;
+  width: 100px;
+  margin: 0 6px;
+}
+.rapor-bar {
+  height: 8px;
+  border-radius: 5px;
+  transition: width 0.3s;
+}
+.rapor-bar-value {
+  font-size: 0.99rem;
+  color: #646464;
+  min-width: 60px;
+}
+.rapor-user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rapor-user-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1rem;
+  padding: 5px 0;
+}
+.rapor-user-icon {
+  font-size: 1.3rem;
+}
+.rapor-user-count {
+  color: #7c63ea;
+  font-weight: 700;
+  margin-left: 12px;
+  margin-right: 8px;
+}
+.rapor-user-info {
+  color: #b5b5b5;
+  font-size: 0.98rem;
+}

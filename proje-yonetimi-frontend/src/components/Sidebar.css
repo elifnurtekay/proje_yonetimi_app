@@ -1,0 +1,110 @@
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 60%, #0b1120 100%);
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  border-right: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 18px 0 32px rgba(15, 23, 42, 0.22);
+}
+
+.sidebar-header {
+  text-align: center;
+  padding: 32px 0 16px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+.sidebar-header h2 {
+  font-size: 1.65rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  letter-spacing: -0.04em;
+}
+.sidebar-version {
+  font-size: 0.9rem;
+  opacity: 0.65;
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 28px;
+  border-bottom: 1px solid #222636;
+  margin-bottom: 8px;
+}
+.sidebar-avatar {
+  width: 48px;
+  height: 48px;
+  background: #e7e7e7;
+  border-radius: 50%;
+  margin-right: 2px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+}
+.sidebar-username {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.sidebar-role {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  background: rgba(148, 163, 184, 0.18);
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+  flex: 1;
+  gap: 4px;
+}
+.sidebar-link {
+  color: rgba(226, 232, 240, 0.78);
+  text-decoration: none;
+  padding: 12px 28px;
+  font-size: 1.03rem;
+  border-radius: 12px;
+  margin: 0 12px;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  cursor: pointer;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  display: block;
+  position: relative;
+  
+}
+
+.sidebar-link:hover,
+.sidebar-link.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  transform: translateX(2px);
+}
+
+.sidebar-link.active::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 26px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #38bdf8 0%, #6366f1 100%);
+}
+
+.sidebar-logout {
+  color: #fca5a5;;
+  margin-top: auto;
+  font-weight: 600;
+}
+.sidebar-logout:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fee2e2;
+}

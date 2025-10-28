@@ -1,0 +1,66 @@
+.topbar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(18px);
+  padding: 0 36px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  position: fixed;
+  top: 0;
+  left: 240px;
+  right: 0;
+  z-index: 20;
+}
+
+.topbar-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(79, 70, 229, 0.08);
+  border-radius: 22px;
+  padding: 5px 14px 5px 10px;
+}
+
+.topbar-role {
+  background: #ede9fe;
+  color: #5b21b6;
+  font-size: 0.85rem;
+  border-radius: 9px;
+  padding: 2px 8px;
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+.topbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(80, 80, 110, 0.12);
+}
+
+.topbar-login-btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+  margin-left: 12px;
+}
+.topbar-login-btn:hover {
+  background: linear-gradient(90deg, #6366f1 20%, #a21caf 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(99, 102, 241, 0.35);
+}

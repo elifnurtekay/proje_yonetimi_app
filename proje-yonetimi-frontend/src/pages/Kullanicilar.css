@@ -1,0 +1,10 @@
+/* src/pages/Kullanicilar.css */
+.kullanicilar-container { padding: 32px; }
+.kullanici-ekle-btn { background: #8257e6; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; margin-bottom: 18px; float: right; }
+.kullanici-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 8px #0001; }
+.kullanici-table th, .kullanici-table td { padding: 14px 12px; text-align: left; }
+.kullanici-table thead { background: #f2f3f6; }
+.kullanici-rol.admin { background: #e0d7fc; color: #8257e6; border-radius: 6px; padding: 2px 10px; font-size: 14px; }
+.kullanici-rol.uye { background: #e0fbe0; color: #39b56b; border-radius: 6px; padding: 2px 10px; font-size: 14px; }
+.kullanici-edit-btn, .kullanici-delete-btn { background: transparent; border: none; cursor: pointer; font-size: 18px; }
+.kullanici-delete-btn { color: #c63636; }

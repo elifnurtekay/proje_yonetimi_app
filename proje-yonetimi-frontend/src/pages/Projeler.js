@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   fetchProjects,
   fetchProjectById,
@@ -7,7 +7,7 @@ import {
   addProject,
 } from "../api";
 import { ensureEffectiveProgress, ensureListEffectiveProgress } from "../utils/progress";
-import ProcessMap from "../components/ProcessMap";
+import { formatAddress, summarizeLocation } from "../utils/location";
 import "./Gorevler.css";
 import "./Projeler.css";
 
@@ -19,6 +19,13 @@ const createEmptyForm = () => ({
   start_date: "",
   end_date: "",
   location_name: "",
+  city: "",
+  district: "",
+  neighborhood: "",
+  street: "",
+  avenue: "",
+  building_no: "",
+  postal_code: "",
   latitude: "",
   longitude: "",
   geofence_radius: "",
@@ -91,6 +98,13 @@ export default function Projeler() {
         start_date: enriched.start_date || "",
         end_date: enriched.end_date || "",
         location_name: enriched.location_name || "",
+        city: enriched.city || "",
+        district: enriched.district || "",
+        neighborhood: enriched.neighborhood || "",
+        street: enriched.street || "",
+        avenue: enriched.avenue || "",
+        building_no: enriched.building_no || "",
+        postal_code: enriched.postal_code || "",
         latitude: toInputValue(enriched.latitude),
         longitude: toInputValue(enriched.longitude),
         geofence_radius: toInputValue(enriched.geofence_radius),
@@ -153,11 +167,6 @@ export default function Projeler() {
     }
   };
 
-  const processesWithLocation = useMemo(
-    () => projects.filter((p) => p.latitude && p.longitude),
-    [projects]
-  );
-
   return (
     <div className="tasks-container processes-page">
       <div className="tasks-header" style={{ justifyContent: "space-between" }}>
@@ -170,24 +179,6 @@ export default function Projeler() {
         >
           + Yeni Süreç
         </button>
-      </div>
-
-      <div className="processes-map-wrapper">
-        <div className="processes-map-header">
-          <h3>Coğrafi Süreç Takibi</h3>
-          <p>
-            Her sürecin lokasyonunu ve ilerleme durumunu harita üzerinden izleyin, geofence alanı ile
-            saha ekiplerini yönetin.
-          </p>
-        </div>
-        {processesWithLocation.length > 0 ? (
-          <ProcessMap processes={projects} />
-        ) : (
-          <div className="processes-empty-map">
-            Henüz koordinatı kaydedilmiş bir süreç bulunmuyor. Süreç formuna enlem, boylam ve geofence
-            bilgisi ekleyerek haritada görüntüleyebilirsiniz.
-          </div>
-        )}
       </div>
 
       {loading ? (
@@ -218,7 +209,9 @@ export default function Projeler() {
                   <span className="progress-note">(manuel %{p.progress})</span>
                 ) : null}
                 <br />
-                <b>Lokasyon:</b> {p.location_name || "-"}
+                <b>Lokasyon:</b> {summarizeLocation(p) || "-"}
+                <br />
+                <b>Adres:</b> {formatAddress(p) || "-"}
                 <br />
                 <b>Koordinat:</b> {p.latitude && p.longitude ? `${p.latitude}, ${p.longitude}` : "-"}
               </div>
@@ -289,6 +282,8 @@ export default function Projeler() {
               ) : null}
               <br />
               <b>Lokasyon:</b> {viewData.location_name || "-"}
+              <br />
+              <b>Adres:</b> {formatAddress(viewData) || "-"}
               <br />
               <b>Koordinat:</b>{" "}
               {viewData.latitude && viewData.longitude
@@ -412,6 +407,72 @@ export default function Projeler() {
                   style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
                 />
               </label>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+                <label>
+                  Şehir:
+                  <input
+                    type="text"
+                    value={editForm.city}
+                    onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label>
+                  İlçe:
+                  <input
+                    type="text"
+                    value={editForm.district}
+                    onChange={(e) => setEditForm({ ...editForm, district: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label>
+                  Mahalle:
+                  <input
+                    type="text"
+                    value={editForm.neighborhood}
+                    onChange={(e) => setEditForm({ ...editForm, neighborhood: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label>
+                  Sokak:
+                  <input
+                    type="text"
+                    value={editForm.street}
+                    onChange={(e) => setEditForm({ ...editForm, street: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label>
+                  Cadde:
+                  <input
+                    type="text"
+                    value={editForm.avenue}
+                    onChange={(e) => setEditForm({ ...editForm, avenue: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label>
+                  Bina No:
+                  <input
+                    type="text"
+                    value={editForm.building_no}
+                    onChange={(e) => setEditForm({ ...editForm, building_no: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label>
+                  Posta Kodu:
+                  <input
+                    type="text"
+                    value={editForm.postal_code}
+                    onChange={(e) => setEditForm({ ...editForm, postal_code: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+              </div>
 
               <div style={{ display: "flex", gap: 12 }}>
                 <label style={{ flex: 1 }}>
@@ -570,6 +631,72 @@ export default function Projeler() {
                   style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
                 />
               </label>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+                <label>
+                  Şehir:
+                  <input
+                    type="text"
+                    value={addForm.city}
+                    onChange={(e) => setAddForm({ ...addForm, city: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label>
+                  İlçe:
+                  <input
+                    type="text"
+                    value={addForm.district}
+                    onChange={(e) => setAddForm({ ...addForm, district: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label>
+                  Mahalle:
+                  <input
+                    type="text"
+                    value={addForm.neighborhood}
+                    onChange={(e) => setAddForm({ ...addForm, neighborhood: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label>
+                  Sokak:
+                  <input
+                    type="text"
+                    value={addForm.street}
+                    onChange={(e) => setAddForm({ ...addForm, street: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label>
+                  Cadde:
+                  <input
+                    type="text"
+                    value={addForm.avenue}
+                    onChange={(e) => setAddForm({ ...addForm, avenue: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label>
+                  Bina No:
+                  <input
+                    type="text"
+                    value={addForm.building_no}
+                    onChange={(e) => setAddForm({ ...addForm, building_no: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label>
+                  Posta Kodu:
+                  <input
+                    type="text"
+                    value={addForm.postal_code}
+                    onChange={(e) => setAddForm({ ...addForm, postal_code: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+              </div>
 
               <div style={{ display: "flex", gap: 12 }}>
                 <label style={{ flex: 1 }}>

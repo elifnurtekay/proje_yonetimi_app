@@ -1,33 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { summarizeLocation } from "../utils/location";
+import { ensureGoogleMaps } from "../utils/googleMaps";
 import "./GoogleProcessMap.css";
 
 const DEFAULT_CENTER = { lat: 39.925533, lng: 32.866287 };
-
-function ensureGoogleMaps(apiKey) {
-  if (typeof window === "undefined") return Promise.reject(new Error("Tarayıcı ortamı gerekiyor."));
-  if (window.google && window.google.maps) return Promise.resolve(window.google);
-  if (!apiKey) return Promise.reject(new Error("Google Maps API anahtarı bulunamadı."));
-
-  const existing = document.querySelector("script[data-google-maps-loader]");
-  if (existing) {
-    return new Promise((resolve, reject) => {
-      existing.addEventListener("load", () => (window.google ? resolve(window.google) : reject(new Error("Google Maps yüklenemedi"))));
-      existing.addEventListener("error", () => reject(new Error("Google Maps yüklenemedi")));
-    });
-  }
-
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
-    script.async = true;
-    script.defer = true;
-    script.dataset.googleMapsLoader = "true";
-    script.onload = () => (window.google ? resolve(window.google) : reject(new Error("Google Maps yüklenemedi")));
-    script.onerror = () => reject(new Error("Google Maps yüklenemedi"));
-    document.head.appendChild(script);
-  });
-}
 
 function buildProcessCard(process) {
   const wrapper = document.createElement("div");

@@ -8,6 +8,7 @@ import {
 } from "../api";
 import { ensureEffectiveProgress, ensureListEffectiveProgress } from "../utils/progress";
 import { formatAddress, summarizeLocation } from "../utils/location";
+import { geocodeAddress } from "../utils/googleMaps";
 import "./Gorevler.css";
 import "./Projeler.css";
 
@@ -34,10 +35,21 @@ const createEmptyForm = () => ({
 const toInputValue = (value) =>
   value === null || typeof value === "undefined" || value === "" ? "" : String(value);
 
-const toNumberOrNull = (value) => {
-  if (value === null || typeof value === "undefined" || value === "") {
-    return null;
-  }
+const buildAddressQuery = (payload) =>
+  [
+    payload.location_name,
+    payload.street,
+    payload.avenue,
+    payload.neighborhood,
+    payload.district,
+    payload.city,
+    payload.postal_code,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+const normalizeCoordinate = (value) => {
+  if (value === null || typeof value === "undefined" || value === "") return null;
   const parsed = Number(value);
   return Number.isNaN(parsed) ? null : parsed;
 };
@@ -57,6 +69,23 @@ export default function Projeler() {
   const [addForm, setAddForm] = useState(createEmptyForm);
 
   const token = localStorage.getItem("access");
+  const mapsApiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+
+  const resolveCoordinates = async (payload) => {
+    const query = buildAddressQuery(payload);
+    if (!query || !mapsApiKey) return payload;
+
+    try {
+      const coords = await geocodeAddress(query, mapsApiKey);
+      if (coords) {
+        return { ...payload, latitude: coords.latitude, longitude: coords.longitude };
+      }
+    } catch (err) {
+      console.warn("Adres geocode edilemedi:", err?.message || err);
+    }
+
+    return payload;
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -119,13 +148,14 @@ export default function Projeler() {
   const handleEditSave = async (e) => {
     e.preventDefault();
     try {
-      const body = {
+      const base = {
         ...editForm,
         progress: Number(editForm.progress || 0),
-        latitude: toNumberOrNull(editForm.latitude),
-        longitude: toNumberOrNull(editForm.longitude),
-        geofence_radius: toNumberOrNull(editForm.geofence_radius),
+        latitude: normalizeCoordinate(editForm.latitude),
+        longitude: normalizeCoordinate(editForm.longitude),
+        geofence_radius: null,
       };
+      const body = await resolveCoordinates(base);
       const updated = await updateProject(editId, body, token);
       const normalized = ensureEffectiveProgress(updated, { startKey: "start_date", endKey: "end_date" }, true);
       setProjects((prev) => prev.map((p) => (p.id === normalized.id ? { ...p, ...normalized } : p)));
@@ -150,13 +180,14 @@ export default function Projeler() {
   const handleAddSave = async (e) => {
     e.preventDefault();
     try {
-      const body = {
+      const base = {
         ...addForm,
         progress: Number(addForm.progress || 0),
-        latitude: toNumberOrNull(addForm.latitude),
-        longitude: toNumberOrNull(addForm.longitude),
-        geofence_radius: toNumberOrNull(addForm.geofence_radius),
+        latitude: normalizeCoordinate(addForm.latitude),
+        longitude: normalizeCoordinate(addForm.longitude),
+        geofence_radius: null,
       };
+      const body = await resolveCoordinates(base);
       const created = await addProject(body, token);
       const normalized = ensureEffectiveProgress(created, { startKey: "start_date", endKey: "end_date" }, true);
       setProjects((prev) => [normalized, ...prev]);
@@ -321,194 +352,138 @@ export default function Projeler() {
             }}
           >
             <h3 style={{ marginBottom: 12 }}>Süreci Düzenle</h3>
-            <form
-              style={{ display: "flex", flexDirection: "column", gap: 12 }}
-              onSubmit={handleEditSave}
-            >
-              <label>
+            <form className="process-form" onSubmit={handleEditSave}>
+              <label className="process-field">
                 Süreç Adı:
                 <input
                   type="text"
                   required
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
                 />
               </label>
 
-              <label>
+              <label className="process-field">
                 Açıklama:
                 <textarea
                   value={editForm.description}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, description: e.target.value })
-                  }
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8, minHeight: 60 }}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  rows={3}
                 />
               </label>
 
-              <label>
-                Durum:
-                <select
-                  value={editForm.status}
-                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
-                >
-                  <option>Aktif</option>
-                  <option>Beklemede</option>
-                  <option>Arşiv</option>
-                </select>
-              </label>
+              <div className="process-form-grid">
+                <label className="process-field">
+                  Durum:
+                  <select
+                    value={editForm.status}
+                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                  >
+                    <option>Aktif</option>
+                    <option>Beklemede</option>
+                    <option>Arşiv</option>
+                  </select>
+                </label>
 
-              <label>
-                İlerleme (%):
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={editForm.progress}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, progress: Number(e.target.value) })
-                  }
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: 110 }}
-                />
-              </label>
+                <label className="process-field">
+                  İlerleme (%):
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={editForm.progress}
+                    onChange={(e) => setEditForm({ ...editForm, progress: Number(e.target.value) })}
+                  />
+                </label>
 
-              <label>
-                Başlangıç Tarihi:
-                <input
-                  type="date"
-                  value={editForm.start_date || ""}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, start_date: e.target.value })
-                  }
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
-                />
-              </label>
+                <label className="process-field">
+                  Başlangıç Tarihi:
+                  <input
+                    type="date"
+                    value={editForm.start_date || ""}
+                    onChange={(e) => setEditForm({ ...editForm, start_date: e.target.value })}
+                  />
+                </label>
 
-              <label>
-                Bitiş Tarihi:
-                <input
-                  type="date"
-                  value={editForm.end_date || ""}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, end_date: e.target.value })
-                  }
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
-                />
-              </label>
+                <label className="process-field">
+                  Bitiş Tarihi:
+                  <input
+                    type="date"
+                    value={editForm.end_date || ""}
+                    onChange={(e) => setEditForm({ ...editForm, end_date: e.target.value })}
+                  />
+                </label>
+              </div>
 
-              <label>
+              <label className="process-field">
                 Lokasyon Adı:
                 <input
                   type="text"
                   value={editForm.location_name}
                   onChange={(e) => setEditForm({ ...editForm, location_name: e.target.value })}
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
                 />
               </label>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
-                <label>
+              <div className="process-form-grid">
+                <label className="process-field">
                   Şehir:
                   <input
                     type="text"
                     value={editForm.city}
                     onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
-                <label>
+                <label className="process-field">
                   İlçe:
                   <input
                     type="text"
                     value={editForm.district}
                     onChange={(e) => setEditForm({ ...editForm, district: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
-                <label>
+                <label className="process-field">
                   Mahalle:
                   <input
                     type="text"
                     value={editForm.neighborhood}
                     onChange={(e) => setEditForm({ ...editForm, neighborhood: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
-                <label>
+                <label className="process-field">
                   Sokak:
                   <input
                     type="text"
                     value={editForm.street}
                     onChange={(e) => setEditForm({ ...editForm, street: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
-                <label>
+                <label className="process-field">
                   Cadde:
                   <input
                     type="text"
                     value={editForm.avenue}
                     onChange={(e) => setEditForm({ ...editForm, avenue: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
-                <label>
+                <label className="process-field">
                   Bina No:
                   <input
                     type="text"
                     value={editForm.building_no}
                     onChange={(e) => setEditForm({ ...editForm, building_no: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
-                <label>
+                <label className="process-field">
                   Posta Kodu:
                   <input
                     type="text"
                     value={editForm.postal_code}
                     onChange={(e) => setEditForm({ ...editForm, postal_code: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
               </div>
 
-              <div style={{ display: "flex", gap: 12 }}>
-                <label style={{ flex: 1 }}>
-                  Enlem (Latitude):
-                  <input
-                    type="number"
-                    step="0.000001"
-                    value={editForm.latitude}
-                    onChange={(e) => setEditForm({ ...editForm, latitude: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
-                  />
-                </label>
-                <label style={{ flex: 1 }}>
-                  Boylam (Longitude):
-                  <input
-                    type="number"
-                    step="0.000001"
-                    value={editForm.longitude}
-                    onChange={(e) => setEditForm({ ...editForm, longitude: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
-                  />
-                </label>
-              </div>
-
-              <label>
-                Geofence Yarıçapı (metre):
-                <input
-                  type="number"
-                  min={0}
-                  value={editForm.geofence_radius}
-                  onChange={(e) => setEditForm({ ...editForm, geofence_radius: e.target.value })}
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
-                />
-              </label>
-
-              <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+              <div className="process-form-actions">
                 <button
                   type="submit"
                   className="tasks-btn"
@@ -545,194 +520,138 @@ export default function Projeler() {
             }}
           >
             <h3 style={{ marginBottom: 12 }}>Yeni Süreç</h3>
-            <form
-              style={{ display: "flex", flexDirection: "column", gap: 12 }}
-              onSubmit={handleAddSave}
-            >
-              <label>
+            <form className="process-form" onSubmit={handleAddSave}>
+              <label className="process-field">
                 Süreç Adı:
                 <input
                   type="text"
                   required
                   value={addForm.name}
                   onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
                 />
               </label>
 
-              <label>
+              <label className="process-field">
                 Açıklama:
                 <textarea
                   value={addForm.description}
-                  onChange={(e) =>
-                    setAddForm({ ...addForm, description: e.target.value })
-                  }
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8, minHeight: 60 }}
+                  onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
+                  rows={3}
                 />
               </label>
 
-              <label>
-                Durum:
-                <select
-                  value={addForm.status}
-                  onChange={(e) => setAddForm({ ...addForm, status: e.target.value })}
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
-                >
-                  <option>Aktif</option>
-                  <option>Beklemede</option>
-                  <option>Arşiv</option>
-                </select>
-              </label>
+              <div className="process-form-grid">
+                <label className="process-field">
+                  Durum:
+                  <select
+                    value={addForm.status}
+                    onChange={(e) => setAddForm({ ...addForm, status: e.target.value })}
+                  >
+                    <option>Aktif</option>
+                    <option>Beklemede</option>
+                    <option>Arşiv</option>
+                  </select>
+                </label>
 
-              <label>
-                İlerleme (%):
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={addForm.progress}
-                  onChange={(e) =>
-                    setAddForm({ ...addForm, progress: Number(e.target.value) })
-                  }
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: 110 }}
-                />
-              </label>
+                <label className="process-field">
+                  İlerleme (%):
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={addForm.progress}
+                    onChange={(e) => setAddForm({ ...addForm, progress: Number(e.target.value) })}
+                  />
+                </label>
 
-              <label>
-                Başlangıç Tarihi:
-                <input
-                  type="date"
-                  value={addForm.start_date || ""}
-                  onChange={(e) =>
-                    setAddForm({ ...addForm, start_date: e.target.value })
-                  }
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
-                />
-              </label>
+                <label className="process-field">
+                  Başlangıç Tarihi:
+                  <input
+                    type="date"
+                    value={addForm.start_date || ""}
+                    onChange={(e) => setAddForm({ ...addForm, start_date: e.target.value })}
+                  />
+                </label>
 
-              <label>
-                Bitiş Tarihi:
-                <input
-                  type="date"
-                  value={addForm.end_date || ""}
-                  onChange={(e) =>
-                    setAddForm({ ...addForm, end_date: e.target.value })
-                  }
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
-                />
-              </label>
+                <label className="process-field">
+                  Bitiş Tarihi:
+                  <input
+                    type="date"
+                    value={addForm.end_date || ""}
+                    onChange={(e) => setAddForm({ ...addForm, end_date: e.target.value })}
+                  />
+                </label>
+              </div>
 
-              <label>
+              <label className="process-field">
                 Lokasyon Adı:
                 <input
                   type="text"
                   value={addForm.location_name}
                   onChange={(e) => setAddForm({ ...addForm, location_name: e.target.value })}
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
                 />
               </label>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
-                <label>
+              <div className="process-form-grid">
+                <label className="process-field">
                   Şehir:
                   <input
                     type="text"
                     value={addForm.city}
                     onChange={(e) => setAddForm({ ...addForm, city: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
-                <label>
+                <label className="process-field">
                   İlçe:
                   <input
                     type="text"
                     value={addForm.district}
                     onChange={(e) => setAddForm({ ...addForm, district: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
-                <label>
+                <label className="process-field">
                   Mahalle:
                   <input
                     type="text"
                     value={addForm.neighborhood}
                     onChange={(e) => setAddForm({ ...addForm, neighborhood: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
-                <label>
+                <label className="process-field">
                   Sokak:
                   <input
                     type="text"
                     value={addForm.street}
                     onChange={(e) => setAddForm({ ...addForm, street: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
-                <label>
+                <label className="process-field">
                   Cadde:
                   <input
                     type="text"
                     value={addForm.avenue}
                     onChange={(e) => setAddForm({ ...addForm, avenue: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
-                <label>
+                <label className="process-field">
                   Bina No:
                   <input
                     type="text"
                     value={addForm.building_no}
                     onChange={(e) => setAddForm({ ...addForm, building_no: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
-                <label>
+                <label className="process-field">
                   Posta Kodu:
                   <input
                     type="text"
                     value={addForm.postal_code}
                     onChange={(e) => setAddForm({ ...addForm, postal_code: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
                   />
                 </label>
               </div>
 
-              <div style={{ display: "flex", gap: 12 }}>
-                <label style={{ flex: 1 }}>
-                  Enlem (Latitude):
-                  <input
-                    type="number"
-                    step="0.000001"
-                    value={addForm.latitude}
-                    onChange={(e) => setAddForm({ ...addForm, latitude: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
-                  />
-                </label>
-                <label style={{ flex: 1 }}>
-                  Boylam (Longitude):
-                  <input
-                    type="number"
-                    step="0.000001"
-                    value={addForm.longitude}
-                    onChange={(e) => setAddForm({ ...addForm, longitude: e.target.value })}
-                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
-                  />
-                </label>
-              </div>
-
-              <label>
-                Geofence Yarıçapı (metre):
-                <input
-                  type="number"
-                  min={0}
-                  value={addForm.geofence_radius}
-                  onChange={(e) => setAddForm({ ...addForm, geofence_radius: e.target.value })}
-                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
-                />
-              </label>
-
-              <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+              <div className="process-form-actions" style={{ marginTop: 12 }}>
                 <button
                   type="submit"
                   className="tasks-btn"

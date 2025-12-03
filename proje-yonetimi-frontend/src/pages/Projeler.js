@@ -1,45 +1,53 @@
-// src/pages/Projeler.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   fetchProjects,
   fetchProjectById,
   updateProject,
   deleteProject,
-  addProject,             // ⬅️ eklendi
+  addProject,
 } from "../api";
 import { ensureEffectiveProgress, ensureListEffectiveProgress } from "../utils/progress";
-import "./Gorevler.css";   // kart ve buton stillerini burada kullanıyoruz
+import ProcessMap from "../components/ProcessMap";
+import "./Gorevler.css";
+import "./Projeler.css";
+
+const createEmptyForm = () => ({
+  name: "",
+  description: "",
+  status: "Aktif",
+  progress: 0,
+  start_date: "",
+  end_date: "",
+  location_name: "",
+  latitude: "",
+  longitude: "",
+  geofence_radius: "",
+});
+
+const toInputValue = (value) =>
+  value === null || typeof value === "undefined" || value === "" ? "" : String(value);
+
+const toNumberOrNull = (value) => {
+  if (value === null || typeof value === "undefined" || value === "") {
+    return null;
+  }
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? null : parsed;
+};
 
 export default function Projeler() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // View modal
   const [viewOpen, setViewOpen] = useState(false);
   const [viewData, setViewData] = useState(null);
 
-  // Edit modal
   const [editOpen, setEditOpen] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [editForm, setEditForm] = useState({
-    name: "",
-    description: "",
-    status: "Aktif",
-    progress: 0,
-    start_date: "",
-    end_date: "",
-  });
+  const [editForm, setEditForm] = useState(createEmptyForm);
 
-  // Add modal
   const [addOpen, setAddOpen] = useState(false);
-  const [addForm, setAddForm] = useState({
-    name: "",
-    description: "",
-    status: "Aktif",
-    progress: 0,
-    start_date: "",
-    end_date: "",
-  });
+  const [addForm, setAddForm] = useState(createEmptyForm);
 
   const token = localStorage.getItem("access");
 
@@ -65,7 +73,7 @@ export default function Projeler() {
       setViewData(ensureEffectiveProgress(data, { startKey: "start_date", endKey: "end_date" }));
       setViewOpen(true);
     } catch (e) {
-      alert(e.message || "Proje alınamadı");
+      alert(e.message || "Süreç verisi alınamadı");
     }
   };
 
@@ -82,10 +90,14 @@ export default function Projeler() {
         progress: Number(enriched.progress || 0),
         start_date: enriched.start_date || "",
         end_date: enriched.end_date || "",
+        location_name: enriched.location_name || "",
+        latitude: toInputValue(enriched.latitude),
+        longitude: toInputValue(enriched.longitude),
+        geofence_radius: toInputValue(enriched.geofence_radius),
       });
       setEditOpen(true);
     } catch (e) {
-      alert(e.message || "Proje alınamadı");
+      alert(e.message || "Süreç verisi alınamadı");
     }
   };
 
@@ -96,71 +108,92 @@ export default function Projeler() {
       const body = {
         ...editForm,
         progress: Number(editForm.progress || 0),
+        latitude: toNumberOrNull(editForm.latitude),
+        longitude: toNumberOrNull(editForm.longitude),
+        geofence_radius: toNumberOrNull(editForm.geofence_radius),
       };
       const updated = await updateProject(editId, body, token);
       const normalized = ensureEffectiveProgress(updated, { startKey: "start_date", endKey: "end_date" }, true);
       setProjects((prev) => prev.map((p) => (p.id === normalized.id ? { ...p, ...normalized } : p)));
       setEditOpen(false);
     } catch (e) {
-      alert(e.message || "Proje güncellenemedi");
+      alert(e.message || "Süreç güncellenemedi");
     }
   };
 
   // Sil
   const handleDelete = async (id) => {
-    if (!window.confirm("Bu projeyi silmek istediğine emin misin?")) return;
+    if (!window.confirm("Bu süreci silmek istediğine emin misin?")) return;
     try {
       await deleteProject(id, token);
       setProjects((prev) => prev.filter((p) => p.id !== id));
     } catch (e) {
-      alert(e.message || "Proje silinemedi");
+      alert(e.message || "Süreç silinemedi");
     }
   };
 
-  // Yeni Proje -> Kaydet
+  // Yeni Süreç -> Kaydet
   const handleAddSave = async (e) => {
     e.preventDefault();
     try {
       const body = {
         ...addForm,
         progress: Number(addForm.progress || 0),
+        latitude: toNumberOrNull(addForm.latitude),
+        longitude: toNumberOrNull(addForm.longitude),
+        geofence_radius: toNumberOrNull(addForm.geofence_radius),
       };
       const created = await addProject(body, token);
       const normalized = ensureEffectiveProgress(created, { startKey: "start_date", endKey: "end_date" }, true);
       setProjects((prev) => [normalized, ...prev]);
       setAddOpen(false);
-      setAddForm({
-        name: "",
-        description: "",
-        status: "Aktif",
-        progress: 0,
-        start_date: "",
-        end_date: "",
-      });
+      setAddForm(createEmptyForm());
     } catch (e) {
-      alert(e.message || "Proje eklenemedi");
+      alert(e.message || "Süreç eklenemedi");
     }
   };
 
-  return (
-    <div className="tasks-container">
-      <div className="tasks-header" style={{ justifyContent: "space-between" }}>
-        <h2>Projeler</h2>
+  const processesWithLocation = useMemo(
+    () => projects.filter((p) => p.latitude && p.longitude),
+    [projects]
+  );
 
-        {/* + Yeni Proje butonu */}
+  return (
+    <div className="tasks-container processes-page">
+      <div className="tasks-header" style={{ justifyContent: "space-between" }}>
+        <h2>Süreçler</h2>
+
         <button
           className="tasks-btn"
           onClick={() => setAddOpen(true)}
           style={{ background: "#6d55e6", color: "#fff" }}
         >
-          + Yeni Proje
+          + Yeni Süreç
         </button>
+      </div>
+
+      <div className="processes-map-wrapper">
+        <div className="processes-map-header">
+          <h3>Coğrafi Süreç Takibi</h3>
+          <p>
+            Her sürecin lokasyonunu ve ilerleme durumunu harita üzerinden izleyin, geofence alanı ile
+            saha ekiplerini yönetin.
+          </p>
+        </div>
+        {processesWithLocation.length > 0 ? (
+          <ProcessMap processes={projects} />
+        ) : (
+          <div className="processes-empty-map">
+            Henüz koordinatı kaydedilmiş bir süreç bulunmuyor. Süreç formuna enlem, boylam ve geofence
+            bilgisi ekleyerek haritada görüntüleyebilirsiniz.
+          </div>
+        )}
       </div>
 
       {loading ? (
         <div>Yükleniyor...</div>
       ) : projects.length === 0 ? (
-        <div>Gösterilecek proje yok.</div>
+        <div>Gösterilecek süreç yok.</div>
       ) : (
         <div
           className="tasks-list"
@@ -184,6 +217,10 @@ export default function Projeler() {
                 {typeof p.progress === "number" && p.progress !== p.effective_progress ? (
                   <span className="progress-note">(manuel %{p.progress})</span>
                 ) : null}
+                <br />
+                <b>Lokasyon:</b> {p.location_name || "-"}
+                <br />
+                <b>Koordinat:</b> {p.latitude && p.longitude ? `${p.latitude}, ${p.longitude}` : "-"}
               </div>
 
               <div className="task-progress">
@@ -250,6 +287,15 @@ export default function Projeler() {
               {typeof viewData.progress === "number" && viewData.progress !== viewData.effective_progress ? (
                 <span className="progress-note">manuel %{viewData.progress}</span>
               ) : null}
+              <br />
+              <b>Lokasyon:</b> {viewData.location_name || "-"}
+              <br />
+              <b>Koordinat:</b>{" "}
+              {viewData.latitude && viewData.longitude
+                ? `${viewData.latitude}, ${viewData.longitude}`
+                : "-"}
+              <br />
+              <b>Geofence:</b> {viewData.geofence_radius ? `${viewData.geofence_radius} m` : "-"}
             </div>
 
             <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
@@ -279,13 +325,13 @@ export default function Projeler() {
               boxShadow: "0 4px 24px rgba(80,99,250,0.11)",
             }}
           >
-            <h3 style={{ marginBottom: 12 }}>Projeyi Düzenle</h3>
+            <h3 style={{ marginBottom: 12 }}>Süreci Düzenle</h3>
             <form
               style={{ display: "flex", flexDirection: "column", gap: 12 }}
               onSubmit={handleEditSave}
             >
               <label>
-                İsim:
+                Süreç Adı:
                 <input
                   type="text"
                   required
@@ -357,6 +403,50 @@ export default function Projeler() {
                 />
               </label>
 
+              <label>
+                Lokasyon Adı:
+                <input
+                  type="text"
+                  value={editForm.location_name}
+                  onChange={(e) => setEditForm({ ...editForm, location_name: e.target.value })}
+                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
+                />
+              </label>
+
+              <div style={{ display: "flex", gap: 12 }}>
+                <label style={{ flex: 1 }}>
+                  Enlem (Latitude):
+                  <input
+                    type="number"
+                    step="0.000001"
+                    value={editForm.latitude}
+                    onChange={(e) => setEditForm({ ...editForm, latitude: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label style={{ flex: 1 }}>
+                  Boylam (Longitude):
+                  <input
+                    type="number"
+                    step="0.000001"
+                    value={editForm.longitude}
+                    onChange={(e) => setEditForm({ ...editForm, longitude: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+              </div>
+
+              <label>
+                Geofence Yarıçapı (metre):
+                <input
+                  type="number"
+                  min={0}
+                  value={editForm.geofence_radius}
+                  onChange={(e) => setEditForm({ ...editForm, geofence_radius: e.target.value })}
+                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
+                />
+              </label>
+
               <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
                 <button
                   type="submit"
@@ -379,7 +469,7 @@ export default function Projeler() {
         </div>
       )}
 
-      {/* Yeni Proje Modal */}
+      {/* Yeni Süreç Modal */}
       {addOpen && (
         <div className="modal-bg">
           <div
@@ -393,13 +483,13 @@ export default function Projeler() {
               boxShadow: "0 4px 24px rgba(80,99,250,0.11)",
             }}
           >
-            <h3 style={{ marginBottom: 12 }}>Yeni Proje</h3>
+            <h3 style={{ marginBottom: 12 }}>Yeni Süreç</h3>
             <form
               style={{ display: "flex", flexDirection: "column", gap: 12 }}
               onSubmit={handleAddSave}
             >
               <label>
-                İsim:
+                Süreç Adı:
                 <input
                   type="text"
                   required
@@ -467,6 +557,50 @@ export default function Projeler() {
                   onChange={(e) =>
                     setAddForm({ ...addForm, end_date: e.target.value })
                   }
+                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
+                />
+              </label>
+
+              <label>
+                Lokasyon Adı:
+                <input
+                  type="text"
+                  value={addForm.location_name}
+                  onChange={(e) => setAddForm({ ...addForm, location_name: e.target.value })}
+                  style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
+                />
+              </label>
+
+              <div style={{ display: "flex", gap: 12 }}>
+                <label style={{ flex: 1 }}>
+                  Enlem (Latitude):
+                  <input
+                    type="number"
+                    step="0.000001"
+                    value={addForm.latitude}
+                    onChange={(e) => setAddForm({ ...addForm, latitude: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+                <label style={{ flex: 1 }}>
+                  Boylam (Longitude):
+                  <input
+                    type="number"
+                    step="0.000001"
+                    value={addForm.longitude}
+                    onChange={(e) => setAddForm({ ...addForm, longitude: e.target.value })}
+                    style={{ padding: 8, borderRadius: 6, marginLeft: 8, width: "100%" }}
+                  />
+                </label>
+              </div>
+
+              <label>
+                Geofence Yarıçapı (metre):
+                <input
+                  type="number"
+                  min={0}
+                  value={addForm.geofence_radius}
+                  onChange={(e) => setAddForm({ ...addForm, geofence_radius: e.target.value })}
                   style={{ padding: 8, borderRadius: 6, marginLeft: 8 }}
                 />
               </label>

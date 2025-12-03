@@ -70,7 +70,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',  
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -80,6 +80,7 @@ MIDDLEWARE = [
 
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -87,6 +88,17 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",       # allauth
 )
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # CRA
+    "http://localhost:5173",  # Vite
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+]
 
 ROOT_URLCONF = 'proje_yonetimi.urls'
 

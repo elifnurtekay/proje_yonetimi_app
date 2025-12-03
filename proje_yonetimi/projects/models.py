@@ -9,6 +9,10 @@ class Project(models.Model):
     progress = models.IntegerField(default=0)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
+    location_name = models.CharField(max_length=150, blank=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    geofence_radius = models.PositiveIntegerField(null=True, blank=True, help_text="Metre cinsinden yarıçap")
 
     created_at = models.DateTimeField(auto_now_add=True)
 

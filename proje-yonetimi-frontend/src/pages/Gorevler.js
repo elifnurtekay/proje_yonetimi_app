@@ -70,7 +70,7 @@ export default function Gorevler() {
         setProjects(ensureListEffectiveProgress(p, { startKey: "start_date", endKey: "end_date" }));
         setUsers(u);
       })
-      .catch(() => alert("Görevler/Projeler/Kullanıcılar alınamadı!"))
+      .catch(() => alert("Görevler/Süreçler/Kullanıcılar alınamadı!"))
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -239,7 +239,7 @@ export default function Gorevler() {
               <div className="task-desc">{task.description || "-"}</div>
 
               <div className="task-info">
-                <b>Proje:</b> {task.project_name || "-"}
+                <b>Süreç:</b> {task.project_name || "-"}
                 <br />
                 <b>Atanan:</b> {task.assignee_name || "-"}
                 <br />
@@ -311,7 +311,7 @@ export default function Gorevler() {
             <h3 style={{ marginBottom: 12 }}>{viewData.title}</h3>
             <p style={{ color: "#666" }}>{viewData.description || "-"}</p>
             <div style={{ marginTop: 10, fontSize: 15 }}>
-              <b>Proje:</b> {viewData.project_name || "-"} <br />
+              <b>Süreç:</b> {viewData.project_name || "-"} <br />
               <b>Atanan:</b> {viewData.assignee_name || "-"} <br />
               <b>Başlangıç:</b> {viewData.start_date || "-"} <br />
               <b>Bitiş:</b> {viewData.end_date || "-"} <br />
@@ -372,7 +372,7 @@ export default function Gorevler() {
               </label>
 
               <label>
-                Proje:
+                Süreç:
                 <select
                   required
                   value={formEdit.project}
@@ -504,7 +504,7 @@ export default function Gorevler() {
               />
 
               <label>
-                Proje:
+                Süreç:
                 <select
                   required
                   value={formAdd.project}

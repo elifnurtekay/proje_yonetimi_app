@@ -230,7 +230,7 @@ export default function Login() {
   return (
     <main className="auth-page">
       <section className="auth-card">
-        <h1 className="auth-title">Proje Yönetimi</h1>
+        <h1 className="auth-title">Süreç Denetimi</h1>
         <div className="auth-sub">Hesabınıza giriş yapın</div>
 
         {err && (

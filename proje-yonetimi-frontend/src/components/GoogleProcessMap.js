@@ -32,21 +32,55 @@ function ensureGoogleMaps(apiKey) {
 function buildProcessCard(process) {
   const wrapper = document.createElement("div");
   wrapper.className = "map-process-card";
+  wrapper.style.position = "absolute";
+  wrapper.style.left = "0";
+  wrapper.style.top = "0";
+
+  const header = document.createElement("div");
+  header.className = "map-process-header";
 
   const title = document.createElement("div");
   title.className = "map-process-title";
   title.textContent = process.name || "Süreç";
-  wrapper.appendChild(title);
+  header.appendChild(title);
+
+  const chip = document.createElement("span");
+  chip.className = "map-process-chip";
+  chip.textContent = process.status || "Aktif";
+  header.appendChild(chip);
+  wrapper.appendChild(header);
+
+  const desc = document.createElement("div");
+  desc.className = "map-process-desc";
+  desc.textContent = process.description || "Açıklama eklenmemiş";
+  wrapper.appendChild(desc);
+
+  const meta = document.createElement("div");
+  meta.className = "map-process-meta";
 
   const location = document.createElement("div");
   location.className = "map-process-location";
   location.textContent = summarizeLocation(process) || "Lokasyon bilgisi yok";
-  wrapper.appendChild(location);
+  meta.appendChild(location);
+
+  const startEnd = document.createElement("div");
+  startEnd.className = "map-process-row";
+  startEnd.innerHTML = `<span>Takvim</span><span>${process.start_date || "-"} → ${process.end_date || "-"}</span>`;
+  meta.appendChild(startEnd);
+
+  const coords = document.createElement("div");
+  coords.className = "map-process-row";
+  const lat = process.latitude ? Number(process.latitude).toFixed(5) : null;
+  const lng = process.longitude ? Number(process.longitude).toFixed(5) : null;
+  coords.innerHTML = `<span>Koordinat</span><span>${lat && lng ? `${lat}, ${lng}` : "-"}</span>`;
+  meta.appendChild(coords);
+
+  wrapper.appendChild(meta);
 
   const status = document.createElement("div");
   status.className = "map-process-status";
   const progress = Math.max(0, Math.min(100, Number(process.effective_progress ?? process.progress ?? 0)));
-  status.textContent = `${process.status || "Aktif"} • %${progress}`;
+  status.textContent = `İlerleme • %${progress}`;
   wrapper.appendChild(status);
 
   const bar = document.createElement("div");
@@ -82,7 +116,12 @@ function createOverlay(google, map, process) {
       const projection = this.getProjection();
       const point = projection.fromLatLngToDivPixel(this.position);
       if (!point) return;
-      this.element.style.transform = `translate(${point.x - 140}px, ${point.y - 160}px)`;
+
+      const width = this.element.offsetWidth || 280;
+      const height = this.element.offsetHeight || 160;
+      const x = point.x - width / 2;
+      const y = point.y - height - 16;
+      this.element.style.transform = `translate(${x}px, ${y}px)`;
     }
 
     onRemove() {

@@ -10,7 +10,7 @@ import Kullanicilar from "./pages/Kullanicilar";
 import Login from "./pages/Login";
 import Kayit from "./pages/Kayit";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ProcessMap from './components/ProcessMap';
+import Haritalar from "./pages/Haritalar";
 
 function App() {
   return (
@@ -28,11 +28,7 @@ function App() {
           <Route path="/kullanicilar" element={<Kullanicilar />} />
           <Route path="/giris" element={<Login />} />
           <Route path="/kayit" element={<Kayit />} />
-          <Route path="/process-map" element={<ProcessMap processes={[
-            { id: 1, name: "Process 1", latitude: 39.925533, longitude: 32.866287 },
-            { id: 2, name: "Process 2", latitude: 39.930000, longitude: 32.870000 },
-            { id: 3, name: "Process 3", latitude: 39.920000, longitude: 32.860000 },
-          ]} />} />
+          <Route path="/haritalar" element={<Haritalar />} />
         </Routes>
       </div>
     </Router>

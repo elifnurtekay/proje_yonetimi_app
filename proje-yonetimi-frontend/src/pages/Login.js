@@ -1,11 +1,11 @@
 // src/pages/Login.js
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./Login.css";
-import { fetchMe, fetchGoogleConfig, googleLogin } from "../api"; // me için
+import { API_BASE, fetchMe, fetchGoogleConfig, googleLogin } from "../api"; // me için
 
 // Bu dosyada kendi login isteğimizi atacağız (api.js'ye dokunmadan)
 async function loginCompat(email, password) {
-  const url = "http://localhost:8000/api/users/login/";
+  const url = `${API_BASE}users/login/`;
   const payload = {
     email: email.trim(),
     username: email.trim(),   // backend 'username' bekliyorsa da çalışsın

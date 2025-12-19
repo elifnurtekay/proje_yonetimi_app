@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  backend:
+    build: ./backend-php
+    ports:
+      - "8080:80"
+    env_file:
+      - ./backend-php/.env
+    depends_on:
+      - mongo
+    volumes:
+      - ./backend-php:/var/www/html
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+  mongo-express:
+    image: mongo-express:1.0.2
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+    depends_on:
+      - mongo
+volumes:
+  mongo-data:

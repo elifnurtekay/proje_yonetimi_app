@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000/api/";
+export const API_BASE = "http://localhost:8080/api/";
 
 // ---- PROJELER ----
 export async function fetchProjects(token) {
@@ -57,7 +57,7 @@ export async function addTask(data, token) {
 }
 
 export async function findUserByEmail(email, token) {
-  const res = await fetch(`http://localhost:8000/api/users/find-by-email/?email=${encodeURIComponent(email)}`, {
+  const res = await fetch(`${API_BASE}users/find-by-email/?email=${encodeURIComponent(email)}`, {
     ...(token && { headers: { "Authorization": `Bearer ${token}` } }),
   });
   if (!res.ok) throw new Error("Kullanıcı bulunamadı");
@@ -131,7 +131,7 @@ export async function registerUser(data) {
 }
 
 /*export async function fetchDashboardSummary(token) {
-  const res = await fetch("http://localhost:8000/api/projects/", {
+  const res = await fetch(`${API_BASE}projects/`, {
     headers: { "Authorization": `Bearer ${token}` }
   });
   if (!res.ok) throw new Error("Dashboard verileri alınamadı");
@@ -140,7 +140,7 @@ export async function registerUser(data) {
 
 // src/api.js
 export async function fetchMe(token) {
-  const res = await fetch("http://localhost:8000/api/users/me/", {
+  const res = await fetch(`${API_BASE}users/me/`, {
     headers: { "Authorization": `Bearer ${token}` }
   });
   if (!res.ok) throw new Error("Kullanıcı bilgisi alınamadı");
@@ -159,7 +159,7 @@ export async function fetchUsers(token) {
 
 //gantt chart
 export async function fetchGanttTasks(projectId, token) {
-  const res = await fetch(`http://localhost:8000/api/tasks/gantt/?project_id=${projectId}`, {
+  const res = await fetch(`${API_BASE}tasks/gantt/?project_id=${projectId}`, {
     headers: {
       ...(token && { "Authorization": `Bearer ${token}` }),
     }
@@ -169,7 +169,7 @@ export async function fetchGanttTasks(projectId, token) {
 }
 
 export async function updateTask(id, data, token) {
-  const res = await fetch(`http://localhost:8000/api/tasks/${id}/`, {
+  const res = await fetch(`${API_BASE}tasks/${id}/`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -182,7 +182,7 @@ export async function updateTask(id, data, token) {
 }
 
 /*export async function fetchDashboardSummary(token) {
-  const res = await fetch("http://localhost:8000/api/dashboard/summary/", {
+  const res = await fetch(`${API_BASE}dashboard/summary/`, {
     headers: { ...(token && { "Authorization": `Bearer ${token}` }) }
   });
   if (!res.ok) throw new Error("Dashboard verileri alınamadı");
@@ -190,7 +190,7 @@ export async function updateTask(id, data, token) {
 }*/
 
 /*export async function fetchDashboardSummary(token) {
-  const url = "http://localhost:8000/api/dashboard/summary/";
+  const url = `${API_BASE}dashboard/summary/`;
   const res = await fetch(url, {
     headers: {
       ...(token ? { "Authorization": `Bearer ${token}` } : {}),
@@ -209,7 +209,7 @@ export async function updateTask(id, data, token) {
 
 // api.js
 export async function fetchDashboardSummary(token) {
-  const url = "http://localhost:8000/api/dashboard/summary/";
+  const url = `${API_BASE}dashboard/summary/`;
   const res = await fetch(url, {
     headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
   });
@@ -236,7 +236,7 @@ export async function fetchDashboardSummary(token) {
 
 // ---- PROJELER: detay, güncelle, sil ----
 export async function fetchProjectById(id, token) {
-  const res = await fetch(`http://localhost:8000/api/projects/${id}/`, {
+  const res = await fetch(`${API_BASE}projects/${id}/`, {
     headers: {
       ...(token && { Authorization: `Bearer ${token}` }),
     },
@@ -246,7 +246,7 @@ export async function fetchProjectById(id, token) {
 }
 
 export async function updateProject(id, data, token) {
-  const res = await fetch(`http://localhost:8000/api/projects/${id}/`, {
+  const res = await fetch(`${API_BASE}projects/${id}/`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -259,7 +259,7 @@ export async function updateProject(id, data, token) {
 }
 
 export async function deleteProject(id, token) {
-  const res = await fetch(`http://localhost:8000/api/projects/${id}/`, {
+  const res = await fetch(`${API_BASE}projects/${id}/`, {
     method: "DELETE",
     headers: {
       ...(token && { Authorization: `Bearer ${token}` }),
@@ -270,7 +270,7 @@ export async function deleteProject(id, token) {
 }
 
 export async function fetchReportsSummary(token) {
-  const res = await fetch("http://localhost:8000/api/tasks/reports/summary/", {
+  const res = await fetch(`${API_BASE}tasks/reports/summary/`, {
     headers: {
       ...(token && { Authorization: `Bearer ${token}` }),
     },
@@ -280,7 +280,7 @@ export async function fetchReportsSummary(token) {
 }
 // GÜNCELLEME (PATCH)
 export async function updateUser(id, data, token) {
-  const res = await fetch(`http://localhost:8000/api/users/${id}/`, {
+  const res = await fetch(`${API_BASE}users/${id}/`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -293,7 +293,7 @@ export async function updateUser(id, data, token) {
 }
 // Tek görev getir
 export async function fetchTaskById(id, token) {
-  const res = await fetch(`http://localhost:8000/api/tasks/${id}/`, {
+  const res = await fetch(`${API_BASE}tasks/${id}/`, {
     headers: { ...(token && { Authorization: `Bearer ${token}` }) },
   });
   if (!res.ok) throw new Error("Görev alınamadı");
@@ -302,7 +302,7 @@ export async function fetchTaskById(id, token) {
 
 // (Opsiyonel) Görev sil — kullanmak istemezsen butonu gösterme
 export async function deleteTask(id, token) {
-  const res = await fetch(`http://localhost:8000/api/tasks/${id}/`, {
+  const res = await fetch(`${API_BASE}tasks/${id}/`, {
     method: "DELETE",
     headers: { ...(token && { Authorization: `Bearer ${token}` }) },
   });

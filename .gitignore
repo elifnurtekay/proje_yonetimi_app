@@ -1,0 +1,16 @@
+# Environment
+.env
+backend-php/.env
+
+# Dependencies
+backend-php/vendor/
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Logs
+*.log

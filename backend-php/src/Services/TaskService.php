@@ -24,13 +24,15 @@ class TaskService
 
     public function attachMeta(array $task): array
     {
-        $project = $this->projects->findById((int)$task['project_id']);
-        $assignee = $task['assignee_id'] ? $this->users->findById((int)$task['assignee_id']) : null;
+        $projectId = $task['project_id'] ?? null;
+        $assigneeId = $task['assignee_id'] ?? null;
+        $project = $projectId !== null ? $this->projects->findById((int)$projectId) : null;
+        $assignee = $assigneeId ? $this->users->findById((int)$assigneeId) : null;
         $progress = Progress::taskProgress($task);
 
         $task['id'] = $task['_id'] ?? null;
-        $task['project'] = $task['project_id'] ?? null;
-        $task['assignee'] = $task['assignee_id'] ?? null;
+        $task['project'] = $projectId;
+        $task['assignee'] = $assigneeId;
         unset($task['_id']);
         unset($task['project_id']);
         unset($task['assignee_id']);
@@ -47,7 +49,8 @@ class TaskService
 
     public function attachProjectOwner(array $task): array
     {
-        $project = $this->projects->findById((int)$task['project_id']);
+        $projectId = $task['project_id'] ?? null;
+        $project = $projectId !== null ? $this->projects->findById((int)$projectId) : null;
         $task['project_owner_id'] = $project['owner_id'] ?? null;
         return $task;
     }

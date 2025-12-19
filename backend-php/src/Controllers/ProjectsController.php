@@ -100,7 +100,11 @@ class ProjectsController extends BaseController
             Response::json(['detail' => 'Proje bulunamadı.'], 404);
             return;
         }
-        if (!($user['is_staff'] ?? false) && $project['owner_id'] !== $user['_id'] && !in_array($user['_id'], $project['task_assignees'] ?? [], true)) {
+        $projectOwnerId = $project['owner_id'] ?? null;
+        if (!($user['is_staff'] ?? false)
+            && $projectOwnerId !== $user['_id']
+            && !in_array($user['_id'], $project['task_assignees'] ?? [], true)
+        ) {
             Response::json(['detail' => 'Yetkisiz.'], 403);
             return;
         }
@@ -119,7 +123,8 @@ class ProjectsController extends BaseController
             Response::json(['detail' => 'Proje bulunamadı.'], 404);
             return;
         }
-        if (!($user['is_staff'] ?? false) && $project['owner_id'] !== $user['_id']) {
+        $projectOwnerId = $project['owner_id'] ?? null;
+        if (!($user['is_staff'] ?? false) && $projectOwnerId !== $user['_id']) {
             Response::json(['detail' => 'Yetkisiz.'], 403);
             return;
         }
@@ -171,7 +176,8 @@ class ProjectsController extends BaseController
             Response::json(['detail' => 'Proje bulunamadı.'], 404);
             return;
         }
-        if (!($user['is_staff'] ?? false) && $project['owner_id'] !== $user['_id']) {
+        $projectOwnerId = $project['owner_id'] ?? null;
+        if (!($user['is_staff'] ?? false) && $projectOwnerId !== $user['_id']) {
             Response::json(['detail' => 'Yetkisiz.'], 403);
             return;
         }

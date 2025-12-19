@@ -68,7 +68,8 @@ class TasksController extends BaseController
             Response::json(['detail' => 'Proje bulunamadı.'], 404);
             return;
         }
-        if (!($user['is_staff'] ?? false) && $project['owner_id'] !== $user['_id']) {
+        $projectOwnerId = $project['owner_id'] ?? null;
+        if (!($user['is_staff'] ?? false) && $projectOwnerId !== $user['_id']) {
             Response::json(['detail' => 'Yetkisiz.'], 403);
             return;
         }
@@ -103,7 +104,9 @@ class TasksController extends BaseController
             Response::json(['detail' => 'Görev bulunamadı.'], 404);
             return;
         }
-        if (!($user['is_staff'] ?? false) && $task['project_owner_id'] !== $user['_id'] && ($task['assignee_id'] ?? null) !== $user['_id']) {
+        $projectOwnerId = $task['project_owner_id'] ?? null;
+        $assigneeId = $task['assignee_id'] ?? null;
+        if (!($user['is_staff'] ?? false) && $projectOwnerId !== $user['_id'] && $assigneeId !== $user['_id']) {
             Response::json(['detail' => 'Yetkisiz.'], 403);
             return;
         }
@@ -122,7 +125,8 @@ class TasksController extends BaseController
             Response::json(['detail' => 'Görev bulunamadı.'], 404);
             return;
         }
-        if (!($user['is_staff'] ?? false) && $task['project_owner_id'] !== $user['_id']) {
+        $projectOwnerId = $task['project_owner_id'] ?? null;
+        if (!($user['is_staff'] ?? false) && $projectOwnerId !== $user['_id']) {
             Response::json(['detail' => 'Yetkisiz.'], 403);
             return;
         }

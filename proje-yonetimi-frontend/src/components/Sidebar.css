@@ -1,15 +1,15 @@
 .sidebar {
   width: 240px;
   height: 100vh;
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 60%, #0b1120 100%);
-  color: #e2e8f0;
+  background: linear-gradient(180deg, #3b0c7d 0%, #5c21a6 55%, #2d0a5a 100%);
+  color: #f5e9ff;
   display: flex;
   flex-direction: column;
   position: fixed;
   left: 0;
   top: 0;
-  border-right: 1px solid rgba(148, 163, 184, 0.15);
-  box-shadow: 18px 0 32px rgba(15, 23, 42, 0.22);
+  border-right: 1px solid rgba(192, 132, 252, 0.28);
+  box-shadow: 18px 0 32px rgba(91, 33, 182, 0.25);
 }
 
 .sidebar-header {
@@ -96,7 +96,7 @@
   width: 4px;
   height: 26px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #38bdf8 0%, #6366f1 100%);
+  background: linear-gradient(180deg, #c084fc 0%, #7c3aed 100%);
 }
 
 .sidebar-logout {

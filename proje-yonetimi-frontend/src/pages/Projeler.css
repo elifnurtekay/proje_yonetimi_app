@@ -5,11 +5,11 @@
 }
 
 .processes-map-wrapper {
-  background: linear-gradient(135deg, rgba(13, 27, 78, 0.95), rgba(32, 51, 128, 0.88));
+  background: linear-gradient(135deg, rgba(74, 14, 120, 0.94), rgba(120, 63, 216, 0.9));
   border-radius: 24px;
   padding: 28px;
-  box-shadow: 0 28px 60px rgba(15, 23, 63, 0.35);
-  border: 1px solid rgba(91, 115, 255, 0.4);
+  box-shadow: 0 28px 60px rgba(74, 14, 120, 0.32);
+  border: 1px solid rgba(124, 77, 255, 0.35);
   color: #fff;
   position: relative;
   overflow: hidden;
@@ -19,7 +19,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top right, rgba(124, 99, 255, 0.25), transparent 55%);
+  background: radial-gradient(circle at top right, rgba(192, 132, 252, 0.22), transparent 55%);
   pointer-events: none;
 }
 
@@ -48,4 +48,81 @@
   color: rgba(255, 255, 255, 0.75);
   font-size: 15px;
   margin-top: 12px;
+}
+
+.map-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #c084fc, #7c3aed);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.14);
+}
+
+.processes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.process-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.process-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 500;
+  color: #2d1f52;
+}
+
+.process-field input,
+.process-field select,
+.process-field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd8f5;
+  background: #fbf9ff;
+  font-size: 14px;
+  color: #2d1f52;
+  box-shadow: inset 0 1px 2px rgba(90, 72, 189, 0.08);
+  box-sizing: border-box;     
+}
+
+.process-field textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.process-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); 
+  gap: 12px 16px;                                   
+}
+
+
+.process-form-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .process-form-grid {
+    grid-template-columns: 1fr;
+  }
 }

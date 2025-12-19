@@ -48,6 +48,9 @@ export default function Sidebar() {
         <NavLink to="/gantt-chart" className="sidebar-link">
           Gantt Chart
         </NavLink>
+        <NavLink to="/haritalar" className="sidebar-link">
+          Haritalar
+        </NavLink>
         <NavLink to="/takvim" className="sidebar-link">
           Takvim
         </NavLink>

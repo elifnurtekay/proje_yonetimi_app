@@ -60,7 +60,7 @@ export default function GanttChart() {
   }, [selectedProjectId, token]);
 
   return (
-    <div className="gantt-container">
+    <div className="gantt-page">
       <div className="gantt-header">
         <div>
           <h2 className="gantt-title">Gantt Planı</h2>

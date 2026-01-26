@@ -1,0 +1,36 @@
+:root {
+  --gantt-bg: linear-gradient(135deg, #f7f1ff 0%, #efe9ff 45%, #f9f6ff 100%);
+  --gantt-card: rgba(255, 255, 255, 0.92);
+  --gantt-shadow: 0 16px 40px rgba(86, 61, 124, 0.18);
+  --gantt-glow: 0 0 0 1px rgba(124, 92, 255, 0.08);
+}
+
+.gantt-theme {
+  background: var(--gantt-bg);
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: var(--gantt-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.gantt-theme::before {
+  content: "";
+  position: absolute;
+  inset: -40% 30% auto -20%;
+  height: 340px;
+  background: radial-gradient(circle at top left, rgba(167, 139, 250, 0.24), transparent 70%);
+  pointer-events: none;
+}
+
+.gantt-theme__card {
+  background: var(--gantt-card);
+  border: 1px solid rgba(124, 92, 255, 0.12);
+  border-radius: 20px;
+  box-shadow: var(--gantt-glow);
+  backdrop-filter: blur(10px);
+}
+
+.gantt-theme__muted {
+  color: var(--muted);
+}

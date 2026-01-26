@@ -17,6 +17,12 @@
   --card:        #FFFFFF;
   --line:        #E6E8F0;
 
+  /* Yeni tema değişkenleri (Gantt için tek noktadan) */
+  --primary:     #7C5CFF;
+  --primary-2:   #B69CFF;
+  --muted:       #6B7280;
+  --border:      #E4E7F2;
+
   /* UI */
   --radius-lg:   18px;
   --radius-md:   12px;

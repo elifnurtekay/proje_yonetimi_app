@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import Gantt from "frappe-gantt";
-//import "frappe-gantt/dist/frappe-gantt.css";
+import "./frappe-gantt.css";
 import { updateTask } from "../api";
 
 // frappe-gantt'ın istediği veri formatına dönüştür
@@ -55,8 +55,7 @@ export default function GanttChartFrappe({ ganttData }) {
   }, [ganttData]);
 
   return (
-    <div>
-      <h2>Frappe Gantt Chart</h2>
+    <div className="gantt-frappe">
       <div ref={ganttRef} />
     </div>
   );

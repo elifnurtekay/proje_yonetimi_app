@@ -5,9 +5,23 @@ import { fetchProjects, fetchGanttTasks } from "../api";
 import GanttChartFrappe from "./GanttChartFrappe";
 import "./GanttChart.css";
 
-const INFO_WIDTH = 260;         // .gantt-task-info ile birebir
-const DAY_WIDTH  = 28;          // 1 gün = 28px
-const NARROW_PX  = 140;         // bu değerin altındaki çubuklarda iç metni gizleyip üst rozeti göster
+const STATUS_CLASS = {
+  Tamamlandı: "chip--success",
+  "Devam Ediyor": "chip--info",
+  Beklemede: "chip--warn",
+  Gecikmiş: "chip--danger",
+};
+
+function getStatusClass(status) {
+  return STATUS_CLASS[status] || "chip--info";
+}
+
+function getInitials(text) {
+  if (!text) return "?";
+  const parts = text.trim().split(" ").filter(Boolean);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+}
 
 function calculateAutoProgress(task) {
   if (!task.start && !task.start_date) return 0;
@@ -23,16 +37,6 @@ function calculateAutoProgress(task) {
   return Math.round((passed / total) * 100);
 }
 
-function getDaysArray(start, end) {
-  const arr = [];
-  let dt = start;
-  while (dt.isBefore(end) || dt.isSame(end, "day")) {
-    arr.push(dt);
-    dt = dt.add(1, "day");
-  }
-  return arr;
-}
-
 export default function GanttChart() {
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProject] = useState("");
@@ -40,17 +44,6 @@ export default function GanttChart() {
   const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("access");
-
-  // Görünüm aralığı
-  const allDates = ganttData
-    .flatMap(t => [t.start || t.start_date, t.end || t.end_date])
-    .filter(Boolean).map(d => dayjs(d)).filter(d => d.isValid());
-
-  let minDate = allDates.length ? allDates[0] : dayjs();
-  let maxDate = allDates.length ? allDates[0] : dayjs();
-  allDates.forEach(d => { if (d.isBefore(minDate)) minDate = d; if (d.isAfter(maxDate)) maxDate = d; });
-  if (minDate.isSame(maxDate)) maxDate = maxDate.add(7, "day");
-  const daysArray = getDaysArray(minDate, maxDate);
 
   useEffect(() => {
     fetchProjects(token)
@@ -66,21 +59,28 @@ export default function GanttChart() {
       .finally(() => setLoading(false));
   }, [selectedProjectId, token]);
 
-  const dayWidth = DAY_WIDTH;
-
   return (
-    <div className="gantt-container">
+    <div className="gantt-page">
       <div className="gantt-header">
-        <h2>Gantt Chart</h2>
-        <select
-          className="gantt-project-select"
-          value={selectedProjectId}
-          onChange={(e) => setSelectedProject(e.target.value)}
-        >
-          {projects.map((p) => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
+        <div>
+          <h2 className="gantt-title">Gantt Planı</h2>
+          <p className="gantt-subtitle">Proje zaman çizelgesi (Frappe Gantt)</p>
+        </div>
+        <div className="gantt-controls">
+          <label className="gantt-select-label" htmlFor="gantt-project">
+            Proje
+          </label>
+          <select
+            id="gantt-project"
+            className="gantt-project-select"
+            value={selectedProjectId}
+            onChange={(e) => setSelectedProject(e.target.value)}
+          >
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="gantt-card gantt-wrap">
@@ -88,111 +88,7 @@ export default function GanttChart() {
           <div>Yükleniyor...</div>
         ) : (
           <>
-            {/* Takvim satırı */}
-            <div className="gantt-calendar">
-              <div className="gantt-calendar-month">
-                {minDate.format("MMMM YYYY")} - {maxDate.format("MMMM YYYY")}
-              </div>
-              <div className="gantt-calendar-days" style={{ marginLeft: INFO_WIDTH }}>
-                {daysArray.map((d, i) => (
-                  <div key={i} className="gantt-calendar-day" style={{ width: dayWidth }}>
-                    {d.format("DD")}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Satırlar */}
-            <div className="gantt-tasks">
-              {ganttData.map((t, i) => {
-                const start = t.start ? dayjs(t.start) : (t.start_date ? dayjs(t.start_date) : null);
-                const end   = t.end   ? dayjs(t.end)   : (t.end_date   ? dayjs(t.end_date)   : null);
-
-                if (!start || !end || !start.isValid() || !end.isValid()) {
-                  return (
-                    <div key={i} className="gantt-task-row">
-                      <div className="gantt-task-info">
-                        <div className="title">{t.title}</div>
-                        <div className="gantt-task-details">
-                          <span>👤 {t.assignee || "-"}</span>
-                          <span>🗓️ -</span>
-                          <span className="gantt-tag">Orta</span>
-                        </div>
-                      </div>
-                      <div style={{ color:"#c00", fontSize:13 }}>Geçersiz tarih!</div>
-                    </div>
-                  );
-                }
-
-                const startIdx     = Math.max(0, start.diff(minDate, "day"));
-                const endIdx       = Math.max(0, end.diff(minDate, "day"));
-                const taskDays     = endIdx - startIdx + 1;
-                const progress     = (t.progress !== null && t.progress !== undefined && t.progress !== 0)
-                  ? t.progress : calculateAutoProgress(t);
-
-                const leftPx       = startIdx * dayWidth;
-                const widthPx      = taskDays * dayWidth;
-                const donePx       = Math.round((widthPx * progress) / 100);
-                const remainPx     = Math.max(0, widthPx - donePx);
-                const narrow       = widthPx < NARROW_PX;
-
-                const labelText    = `${start.format("DD MMM")} - ${end.format("DD MMM")} • %${progress}`;
-
-                return (
-                  <div key={i} className="gantt-task-row">
-                    {/* Meta */}
-                    <div className="gantt-task-info">
-                      <div className="title">{t.title}</div>
-                      <div className="gantt-task-details">
-                        <span>👤 {t.assignee || "-"}</span>
-                        <span>🗓️ {start.format("YYYY-MM-DD")} - {end.format("YYYY-MM-DD")}</span>
-                        <span className="gantt-tag">Orta</span>
-                        {t.dependencies?.length ? (
-                          <span style={{ color:"#b267ff" }}>🔗 {t.dependencies.join(", ")}</span>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    {/* Timeline */}
-                    <div className="gantt-lane">
-                      <div
-                        className={`gantt-bar ${narrow ? "is-narrow" : ""}`}
-                        style={{
-                          left: leftPx,
-                          width: widthPx
-                        }}
-                        title={labelText}
-                      >
-                        {/* biten kısım */}
-                        <div className="bar-done" style={{ width: donePx }} />
-                        {/* ayırıcı çizgi */}
-                        <span className="bar-seam" style={{ left: donePx }} />
-                        {/* kalan kısım */}
-                        <div className="bar-remaining" style={{ left: donePx, width: remainPx }} />
-
-                        {/* çubuk içindeki etiket (geniş çubuklarda) */}
-                        <div className="inner-label">{labelText}</div>
-
-                        {/* dar çubuklarda üst rozet – her zaman görünür */}
-                        {narrow && <div className="gantt-top-label">{labelText}</div>}
-
-                        {/* Hover popover */}
-                        <div className="gantt-popover">
-                          <div style={{ fontWeight:700, marginBottom:4 }}>{t.title}</div>
-                          <div>📅 {start.format("DD MMM YYYY")} → {end.format("DD MMM YYYY")}</div>
-                          <div>👤 {t.assignee || "-"}</div>
-                          <div>Durum: {t.status || "-"}</div>
-                          <div>İlerleme: %{progress}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Özet */}
-            <div className="gantt-summary">
+            <div className="gantt-summary gantt-summary-top">
               <div className="gantt-summary-item">
                 <span>{ganttData.length}</span>
                 <small>Toplam Görev</small>
@@ -223,10 +119,56 @@ export default function GanttChart() {
               </div>
             </div>
 
-            {/* Alternatif (Frappe) – mevcut davranış korunuyor */}
-            <div style={{ marginTop: 40 }}>
-              <h2>Alternatif Gantt (Frappe Gantt)</h2>
-              <GanttChartFrappe ganttData={ganttData} />
+            <div className="gantt-frappe-card">
+              <div className="gantt-frappe-header">
+                <div>
+                  <h3>Gantt Görünümü</h3>
+                  <p>Etkileşimli sürükle-bırak görünümü</p>
+                </div>
+              </div>
+              <div className="gantt-board">
+                <div className="gantt-board-list">
+                  <div className="gantt-board-list-header">
+                    <span>Görev Adı</span>
+                    <span>Durum</span>
+                  </div>
+                  <div className="gantt-board-list-body">
+                    {ganttData.map((task) => {
+                      const progress = (task.progress !== undefined && task.progress !== null && task.progress !== 0)
+                        ? task.progress
+                        : calculateAutoProgress(task);
+                      const assignee = task.assignee || "Atanmamış";
+                      const status = task.status || "Beklemede";
+                      return (
+                        <div key={task.id} className="gantt-board-item">
+                          <div className="gantt-board-item-main">
+                            <div className="gantt-avatar">{getInitials(assignee)}</div>
+                            <div className="gantt-board-item-info">
+                              <div className="gantt-board-item-title">{task.title}</div>
+                              <div className="gantt-board-item-meta">
+                                <span>👤 {assignee}</span>
+                                <span>📅 {task.start || task.start_date || "-"} → {task.end || task.end_date || "-"}</span>
+                              </div>
+                              <div className="gantt-board-progress">
+                                <div className="gantt-board-progress-bar">
+                                  <span style={{ width: `${progress}%` }} />
+                                </div>
+                                <span className="gantt-board-progress-value">%{progress}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <span className={`chip gantt-status ${getStatusClass(status)}`}>
+                            {status}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="gantt-board-chart">
+                  <GanttChartFrappe ganttData={ganttData} />
+                </div>
+              </div>
             </div>
           </>
         )}

@@ -1,115 +1,159 @@
 /* === GANTT: layout & grid === */
-.gantt-container { padding: 24px 24px 60px; min-height: 90vh; }
-.gantt-header { display:flex; align-items:center; gap:16px; margin-bottom:12px; }
-.gantt-project-select { padding:6px 10px; border-radius:10px; border:1px solid #e8eaf3; }
+.gantt-page { padding: 24px 24px 60px; min-height: 90vh; }
+.gantt-header {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; margin-bottom:18px;
+}
+.gantt-title { margin:0; font-weight:800; }
+.gantt-subtitle { margin:6px 0 0; color:var(--text-muted); font-size:14px; }
+.gantt-controls { display:flex; align-items:center; gap:10px; }
+.gantt-select-label { font-size:12px; font-weight:700; color:#5c6482; text-transform:uppercase; letter-spacing:.3px; }
+.gantt-project-select {
+  padding:8px 14px; border-radius:12px; border:1px solid #e8eaf3; background:#fff;
+  box-shadow:0 2px 10px rgba(9,30,66,.06);
+}
 
-.gantt-card { background:#fff; border-radius:18px; box-shadow:0 2px 14px #1e20470e; padding:18px; }
+.gantt-card {
+  background:#fff; border-radius:18px;
+  box-shadow:0 8px 28px rgba(37,44,97,.08);
+  padding:22px;
+}
 
 .gantt-wrap{
-  --row-h: 56px;          /* satır yüksekliği */
-  --bar-h: 18px;          /* çubuk yüksekliği */
-  --bar-radius: 12px;
   --muted:#6c7085;
 }
 
-/* üst takvim */
-.gantt-calendar { margin-bottom:8px; }
-.gantt-calendar-month { font-weight:600; color:#6568a4; margin-bottom:2px; }
-.gantt-calendar-days{ display:flex; gap:0; }
-.gantt-calendar-day{ width:28px; font-size:12px; color:#9aa0b5; text-align:center; }
-
-/* grid */
-.gantt-task-row{
-  display:grid; grid-template-columns: 260px 1fr; /* solda meta, sağda timeline */
-  align-items:center; min-height:var(--row-h);
-  border-bottom:1px dashed #f0f1f7; gap:12px; padding:8px 0;
-}
-.gantt-task-info{ width:260px; }
-.gantt-task-info .title{ font-weight:700; }
-.gantt-task-details{ font-size:12px; color:var(--muted); display:flex; gap:8px; align-items:center; }
-.gantt-tag{
-  display:inline-flex; align-items:center; background:#ffe6e6; color:#b71c1c;
-  padding:2px 10px; border-radius:999px; font-size:11px; font-weight:700;
-}
-
-/* zaman çizgisi şeridi */
-.gantt-lane{ position:relative; height:var(--row-h); }
-
-/* === Çubuk konteyneri === */
-.gantt-bar{
-  position:absolute;
-  top: calc(50% - var(--bar-h)/2);
-  height:var(--bar-h);
-  border-radius:var(--bar-radius);
-  box-shadow:0 2px 8px #00000014;
-  overflow:visible;
-  background:#eaf1ff; /* arka plan izlenimi */
-}
-
-/* biten ve kalan parçalar – keskin renk ayrımı */
-.gantt-bar .bar-done{
-  position:absolute; left:0; top:0; bottom:0;
-  background: linear-gradient(90deg, #34d399 0%, #10b981 100%);
-  border-top-left-radius: var(--bar-radius);
-  border-bottom-left-radius: var(--bar-radius);
-}
-.gantt-bar .bar-remaining{
-  position:absolute; top:0; bottom:0;
-  background: linear-gradient(90deg, #b9d4ff 0%, #9cc4ff 100%);
-  border-top-right-radius: var(--bar-radius);
-  border-bottom-right-radius: var(--bar-radius);
-}
-
-/* ortadaki ayırıcı “seam” çizgisi */
-.gantt-bar .bar-seam{
-  position:absolute; top:-4px; bottom:-4px; width:2px;
-  background: rgba(11,16,32,.28);
-  transform: translateX(-1px);
-  border-radius:2px;
-  pointer-events:none;
-}
-
-/* çubuk içindeki etiket – geniş çubuklarda görünür */
-.gantt-bar .inner-label{
-  position:absolute; left:50%; top:50%;
-  transform: translate(-50%, -50%);
-  background: #ffffffcc;
-  color:#0b1020; font-size:12px; font-weight:700;
-  padding:2px 10px; border-radius:10px; box-shadow:0 2px 8px #0001;
-  white-space:nowrap;
-}
-.gantt-bar.is-narrow .inner-label{ opacity:0; }
-
-/* dar çubuklarda üst rozet – her zaman görünür */
-.gantt-top-label{
-  position:absolute; left:50%; bottom: calc(100% + 6px);
-  transform: translateX(-50%);
-  background:#fff; color:#0b1020; font-weight:700; font-size:12px;
-  padding:2px 10px; border-radius:10px; box-shadow:0 4px 14px #00000014;
-  white-space:nowrap; z-index:6;
-}
-
-/* Hover popover */
-.gantt-popover{
-  position:absolute; left:0; bottom: calc(100% + 8px);
-  background:#fff; border:1px solid #eef0f6; border-radius:12px;
-  padding:10px 12px; box-shadow:0 12px 24px rgba(9,30,66,.12);
-  font-size:12px; color:#0b1020; width:max-content; max-width:320px;
-  opacity:0; transform:translateY(6px); pointer-events:none;
-  transition:opacity .12s ease, transform .12s ease; z-index:5;
-}
-.gantt-popover::after{
-  content:""; position:absolute; left:18px; top:100%;
-  border:8px solid transparent; border-top-color:#fff;
-  filter: drop-shadow(0 2px 2px rgba(9,30,66,.12));
-}
-.gantt-bar:hover .gantt-popover{ opacity:1; transform:translateY(0); }
-
 /* özet */
 .gantt-summary {
-  display:grid; grid-auto-flow:column; gap:36px; padding:12px 4px 0;
-  border-top:1px solid #eef0f6; margin-top:8px;
+  display:grid; grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:16px; margin-top:8px;
 }
-.gantt-summary-item{ min-width:110px; text-align:center; }
-.gantt-summary-item span{ font-size:2rem; font-weight:800; }
-.gantt-summary-item small{ color:#6c7085; }
+.gantt-summary-top { margin-bottom:16px; }
+.gantt-summary-item{
+  min-width:110px; text-align:left; padding:14px 16px;
+  border-radius:14px; background:#f7f8ff; border:1px solid #eef0f6;
+}
+.gantt-summary-item span{ font-size:1.6rem; font-weight:800; }
+.gantt-summary-item small{ color:#6c7085; display:block; margin-top:4px; }
+
+.gantt-frappe-card{
+  margin-top:28px; padding:20px; border-radius:18px;
+  border:1px solid #e9ecf6; background:#f7f7fd;
+}
+.gantt-frappe-header h3{ margin:0 0 6px; }
+.gantt-frappe-header p{ margin:0; color:#6c7085; }
+
+.gantt-board{
+  display:grid; grid-template-columns: 320px 1fr; gap:18px; margin-top:18px;
+  align-items:stretch;
+}
+.gantt-board-list{
+  background:#ffffff; border-radius:16px; padding:16px;
+  color:#1f2a44; border:1px solid #eef0f6;
+  display:flex; flex-direction:column; min-height:420px;
+  box-shadow:0 8px 20px rgba(17,24,39,.06);
+}
+.gantt-board-list-header{
+  display:flex; justify-content:space-between; font-size:11px;
+  text-transform:uppercase; letter-spacing:.4px; color:#6b7280;
+  padding:4px 6px 12px; border-bottom:1px solid #eef0f6;
+}
+.gantt-board-list-body{
+  margin-top:12px; display:flex; flex-direction:column; gap:12px;
+  max-height:520px; overflow:auto; padding-right:4px;
+}
+.gantt-board-item{
+  display:flex; justify-content:space-between; gap:12px;
+  background:#f8f9ff; border:1px solid #eceff8; border-radius:14px;
+  padding:12px;
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+.gantt-board-item:hover{
+  box-shadow:0 10px 18px rgba(76,78,128,.10);
+  transform: translateY(-1px);
+}
+.gantt-board-item-main{ display:flex; gap:12px; }
+.gantt-avatar{
+  width:36px; height:36px; border-radius:12px; background:#eef2ff;
+  display:flex; align-items:center; justify-content:center; font-weight:700;
+  color:#4f46e5; font-size:13px;
+}
+.gantt-board-item-info{ flex:1; display:flex; flex-direction:column; gap:6px; }
+.gantt-board-item-title{ font-weight:700; color:#0f172a; font-size:14px; }
+.gantt-board-item-meta{
+  display:flex; flex-direction:column; gap:2px; font-size:12px; color:#6b7280;
+}
+.gantt-board-progress{ display:flex; align-items:center; gap:8px; }
+.gantt-board-progress-bar{
+  flex:1; height:6px; border-radius:999px; background:#e6e9f2; overflow:hidden;
+}
+.gantt-board-progress-bar span{
+  display:block; height:100%;
+  background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+}
+.gantt-board-progress-value{ font-size:11px; color:#6b7280; }
+.gantt-board-item .chip{
+  align-self:flex-start; font-size:11px; padding:4px 8px;
+}
+.gantt-board-chart{
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9ff 100%);
+  border-radius:16px; padding:12px;
+  border:1px solid #eef0f6;
+  box-shadow:0 8px 20px rgba(17,24,39,.06);
+}
+.gantt-frappe-card .gantt-container,
+.gantt-frappe-card .gantt{
+  background:transparent;
+}
+.gantt-frappe{ overflow:auto; padding-top:12px; }
+
+.gantt-frappe-card .grid-background rect{
+  fill:#f2f4ff;
+}
+.gantt-frappe-card .grid-row rect{
+  fill:#ffffff;
+}
+.gantt-frappe-card .bar{
+  fill:#7c6cfb;
+}
+.gantt-frappe-card .bar-progress{
+  fill:#34d399;
+}
+.gantt-frappe-card .bar-label{
+  fill:#1f2937;
+  font-weight:600;
+}
+.gantt-frappe-card .grid-header{
+  background:#ffffff;
+}
+.gantt-frappe-card .upper-text,
+.gantt-frappe-card .lower-text{
+  fill:#6b7280;
+}
+.gantt-frappe-card .tick{
+  stroke:#e6e9f2;
+}
+.gantt-frappe-card .tick.thick{
+  stroke:#d6dbe8;
+}
+.gantt-frappe-card .row-line{
+  stroke:#eef0f6;
+}
+.gantt-frappe-card .arrow{
+  stroke:#9aa3b2;
+}
+.gantt-frappe-card .bar-wrapper .bar{
+  outline:1px solid #e4e7f2;
+}
+
+.gantt-board-list-body::-webkit-scrollbar{ width:6px; }
+.gantt-board-list-body::-webkit-scrollbar-thumb{
+  background:#d8dcef; border-radius:999px;
+}
+
+@media (max-width: 900px) {
+  .gantt-header { flex-direction:column; align-items:flex-start; }
+  .gantt-summary { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .gantt-board{ grid-template-columns:1fr; }
+  .gantt-board-chart{ min-height:360px; }
+}

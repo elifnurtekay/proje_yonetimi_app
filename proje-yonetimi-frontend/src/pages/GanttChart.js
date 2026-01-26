@@ -5,6 +5,24 @@ import { fetchProjects, fetchGanttTasks } from "../api";
 import GanttChartFrappe from "./GanttChartFrappe";
 import "./GanttChart.css";
 
+const STATUS_CLASS = {
+  Tamamlandı: "chip--success",
+  "Devam Ediyor": "chip--info",
+  Beklemede: "chip--warn",
+  Gecikmiş: "chip--danger",
+};
+
+function getStatusClass(status) {
+  return STATUS_CLASS[status] || "chip--info";
+}
+
+function getInitials(text) {
+  if (!text) return "?";
+  const parts = text.trim().split(" ").filter(Boolean);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+}
+
 function calculateAutoProgress(task) {
   if (!task.start && !task.start_date) return 0;
   if (!task.end && !task.end_date) return 0;
@@ -108,7 +126,49 @@ export default function GanttChart() {
                   <p>Etkileşimli sürükle-bırak görünümü</p>
                 </div>
               </div>
-              <GanttChartFrappe ganttData={ganttData} />
+              <div className="gantt-board">
+                <div className="gantt-board-list">
+                  <div className="gantt-board-list-header">
+                    <span>Görev Adı</span>
+                    <span>Durum</span>
+                  </div>
+                  <div className="gantt-board-list-body">
+                    {ganttData.map((task) => {
+                      const progress = (task.progress !== undefined && task.progress !== null && task.progress !== 0)
+                        ? task.progress
+                        : calculateAutoProgress(task);
+                      const assignee = task.assignee || "Atanmamış";
+                      const status = task.status || "Beklemede";
+                      return (
+                        <div key={task.id} className="gantt-board-item">
+                          <div className="gantt-board-item-main">
+                            <div className="gantt-avatar">{getInitials(assignee)}</div>
+                            <div className="gantt-board-item-info">
+                              <div className="gantt-board-item-title">{task.title}</div>
+                              <div className="gantt-board-item-meta">
+                                <span>👤 {assignee}</span>
+                                <span>📅 {task.start || task.start_date || "-"} → {task.end || task.end_date || "-"}</span>
+                              </div>
+                              <div className="gantt-board-progress">
+                                <div className="gantt-board-progress-bar">
+                                  <span style={{ width: `${progress}%` }} />
+                                </div>
+                                <span className="gantt-board-progress-value">%{progress}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <span className={`chip gantt-status ${getStatusClass(status)}`}>
+                            {status}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="gantt-board-chart">
+                  <GanttChartFrappe ganttData={ganttData} />
+                </div>
+              </div>
             </div>
           </>
         )}

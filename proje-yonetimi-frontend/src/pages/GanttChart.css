@@ -37,8 +37,8 @@
 .gantt-summary-item small{ color:#6c7085; display:block; margin-top:4px; }
 
 .gantt-frappe-card{
-  margin-top:28px; padding:18px; border-radius:16px;
-  border:1px solid #eef0f6; background:#f9faff;
+  margin-top:28px; padding:20px; border-radius:18px;
+  border:1px solid #e9ecf6; background:#f7f7fd;
 }
 .gantt-frappe-header h3{ margin:0 0 6px; }
 .gantt-frappe-header p{ margin:0; color:#6c7085; }
@@ -48,24 +48,33 @@
   align-items:stretch;
 }
 .gantt-board-list{
-  background:#ffffff; border-radius:14px; padding:14px;
+  background:#ffffff; border-radius:16px; padding:16px;
   color:#1f2a44; border:1px solid #eef0f6;
   display:flex; flex-direction:column; min-height:420px;
+  box-shadow:0 8px 20px rgba(17,24,39,.06);
 }
 .gantt-board-list-header{
   display:flex; justify-content:space-between; font-size:11px;
   text-transform:uppercase; letter-spacing:.4px; color:#6b7280;
   padding:4px 6px 12px; border-bottom:1px solid #eef0f6;
 }
-.gantt-board-list-body{ margin-top:12px; display:flex; flex-direction:column; gap:12px; }
+.gantt-board-list-body{
+  margin-top:12px; display:flex; flex-direction:column; gap:12px;
+  max-height:520px; overflow:auto; padding-right:4px;
+}
 .gantt-board-item{
   display:flex; justify-content:space-between; gap:12px;
-  background:#f9f9ff; border:1px solid #eef0f6; border-radius:12px;
+  background:#f8f9ff; border:1px solid #eceff8; border-radius:14px;
   padding:12px;
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+.gantt-board-item:hover{
+  box-shadow:0 10px 18px rgba(76,78,128,.10);
+  transform: translateY(-1px);
 }
 .gantt-board-item-main{ display:flex; gap:12px; }
 .gantt-avatar{
-  width:36px; height:36px; border-radius:10px; background:#eef2ff;
+  width:36px; height:36px; border-radius:12px; background:#eef2ff;
   display:flex; align-items:center; justify-content:center; font-weight:700;
   color:#4f46e5; font-size:13px;
 }
@@ -76,7 +85,7 @@
 }
 .gantt-board-progress{ display:flex; align-items:center; gap:8px; }
 .gantt-board-progress-bar{
-  flex:1; height:6px; border-radius:999px; background:#e5e7eb; overflow:hidden;
+  flex:1; height:6px; border-radius:999px; background:#e6e9f2; overflow:hidden;
 }
 .gantt-board-progress-bar span{
   display:block; height:100%;
@@ -87,8 +96,10 @@
   align-self:flex-start; font-size:11px; padding:4px 8px;
 }
 .gantt-board-chart{
-  background: #ffffff; border-radius:14px; padding:12px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9ff 100%);
+  border-radius:16px; padding:12px;
   border:1px solid #eef0f6;
+  box-shadow:0 8px 20px rgba(17,24,39,.06);
 }
 .gantt-frappe-card .gantt-container,
 .gantt-frappe-card .gantt{
@@ -97,13 +108,13 @@
 .gantt-frappe{ overflow:auto; padding-top:12px; }
 
 .gantt-frappe-card .grid-background rect{
-  fill:#f5f7ff;
+  fill:#f2f4ff;
 }
 .gantt-frappe-card .grid-row rect{
   fill:#ffffff;
 }
 .gantt-frappe-card .bar{
-  fill:#8b5cf6;
+  fill:#7c6cfb;
 }
 .gantt-frappe-card .bar-progress{
   fill:#34d399;
@@ -120,19 +131,24 @@
   fill:#6b7280;
 }
 .gantt-frappe-card .tick{
-  stroke:#e5e7eb;
+  stroke:#e6e9f2;
 }
 .gantt-frappe-card .tick.thick{
-  stroke:#d1d5db;
+  stroke:#d6dbe8;
 }
 .gantt-frappe-card .row-line{
   stroke:#eef0f6;
 }
 .gantt-frappe-card .arrow{
-  stroke:#9ca3af;
+  stroke:#9aa3b2;
 }
 .gantt-frappe-card .bar-wrapper .bar{
-  outline:1px solid #e5e7eb;
+  outline:1px solid #e4e7f2;
+}
+
+.gantt-board-list-body::-webkit-scrollbar{ width:6px; }
+.gantt-board-list-body::-webkit-scrollbar-thumb{
+  background:#d8dcef; border-radius:999px;
 }
 
 @media (max-width: 900px) {

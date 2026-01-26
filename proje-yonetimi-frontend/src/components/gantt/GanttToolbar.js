@@ -108,7 +108,7 @@ export default function GanttToolbar({
 
         <div className="gantt-toolbar__actions">
           <button type="button" className="gantt-btn" onClick={onTodayClick}>
-            Bugün
+            Bugüne Git
           </button>
           <button type="button" className="gantt-btn ghost" onClick={onToggleList}>
             {isListVisible ? "Listeyi Gizle" : "Listeyi Göster"}

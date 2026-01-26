@@ -1,39 +1,66 @@
 /* === GANTT: layout & grid === */
 .gantt-container { padding: 24px 24px 60px; min-height: 90vh; }
-.gantt-header { display:flex; align-items:center; gap:16px; margin-bottom:12px; }
-.gantt-project-select { padding:6px 10px; border-radius:10px; border:1px solid #e8eaf3; }
+.gantt-header {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; margin-bottom:18px;
+}
+.gantt-title { margin:0; font-weight:800; }
+.gantt-subtitle { margin:6px 0 0; color:var(--text-muted); font-size:14px; }
+.gantt-controls { display:flex; align-items:center; gap:10px; }
+.gantt-select-label { font-size:12px; font-weight:700; color:#5c6482; text-transform:uppercase; letter-spacing:.3px; }
+.gantt-project-select {
+  padding:8px 14px; border-radius:12px; border:1px solid #e8eaf3; background:#fff;
+  box-shadow:0 2px 10px rgba(9,30,66,.06);
+}
 
-.gantt-card { background:#fff; border-radius:18px; box-shadow:0 2px 14px #1e20470e; padding:18px; }
+.gantt-card {
+  background:#fff; border-radius:18px;
+  box-shadow:0 8px 28px rgba(37,44,97,.08);
+  padding:22px;
+}
 
 .gantt-wrap{
   --row-h: 56px;          /* satır yüksekliği */
-  --bar-h: 18px;          /* çubuk yüksekliği */
+  --bar-h: 22px;          /* çubuk yüksekliği */
   --bar-radius: 12px;
   --muted:#6c7085;
+  --info-width: 260px;
 }
 
 /* üst takvim */
-.gantt-calendar { margin-bottom:8px; }
-.gantt-calendar-month { font-weight:600; color:#6568a4; margin-bottom:2px; }
-.gantt-calendar-days{ display:flex; gap:0; }
+.gantt-calendar { margin:18px 0 12px; }
+.gantt-calendar-month { font-weight:700; color:#4d5288; margin-bottom:6px; }
+.gantt-calendar-days{
+  display:flex; gap:0; padding:6px 0; margin-left: var(--info-width);
+  border-top:1px solid #eff1f7; border-bottom:1px solid #eff1f7;
+}
 .gantt-calendar-day{ width:28px; font-size:12px; color:#9aa0b5; text-align:center; }
 
 /* grid */
 .gantt-task-row{
-  display:grid; grid-template-columns: 260px 1fr; /* solda meta, sağda timeline */
+  display:grid; grid-template-columns: var(--info-width) 1fr; /* solda meta, sağda timeline */
   align-items:center; min-height:var(--row-h);
-  border-bottom:1px dashed #f0f1f7; gap:12px; padding:8px 0;
+  border-bottom:1px dashed #f0f1f7; gap:12px; padding:10px 0;
 }
-.gantt-task-info{ width:260px; }
+.gantt-task-info{ width:var(--info-width); }
 .gantt-task-info .title{ font-weight:700; }
-.gantt-task-details{ font-size:12px; color:var(--muted); display:flex; gap:8px; align-items:center; }
-.gantt-tag{
-  display:inline-flex; align-items:center; background:#ffe6e6; color:#b71c1c;
-  padding:2px 10px; border-radius:999px; font-size:11px; font-weight:700;
-}
+.gantt-task-details{ font-size:12px; color:var(--muted); display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.gantt-status{ text-transform:capitalize; }
+.gantt-invalid{ color:#c0392b; font-size:12px; font-weight:700; }
 
 /* zaman çizgisi şeridi */
-.gantt-lane{ position:relative; height:var(--row-h); }
+.gantt-lane{
+  position:relative; height:var(--row-h);
+  background:
+    repeating-linear-gradient(
+      to right,
+      rgba(99,102,241,.08) 0,
+      rgba(99,102,241,.08) 1px,
+      transparent 1px,
+      transparent 28px
+    );
+  border-radius:12px;
+}
 
 /* === Çubuk konteyneri === */
 .gantt-bar{
@@ -41,7 +68,7 @@
   top: calc(50% - var(--bar-h)/2);
   height:var(--bar-h);
   border-radius:var(--bar-radius);
-  box-shadow:0 2px 8px #00000014;
+  box-shadow:0 6px 16px rgba(15,23,42,.16);
   overflow:visible;
   background:#eaf1ff; /* arka plan izlenimi */
 }
@@ -49,13 +76,13 @@
 /* biten ve kalan parçalar – keskin renk ayrımı */
 .gantt-bar .bar-done{
   position:absolute; left:0; top:0; bottom:0;
-  background: linear-gradient(90deg, #34d399 0%, #10b981 100%);
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
   border-top-left-radius: var(--bar-radius);
   border-bottom-left-radius: var(--bar-radius);
 }
 .gantt-bar .bar-remaining{
   position:absolute; top:0; bottom:0;
-  background: linear-gradient(90deg, #b9d4ff 0%, #9cc4ff 100%);
+  background: linear-gradient(90deg, #cbd5ff 0%, #a5b4fc 100%);
   border-top-right-radius: var(--bar-radius);
   border-bottom-right-radius: var(--bar-radius);
 }
@@ -73,7 +100,7 @@
 .gantt-bar .inner-label{
   position:absolute; left:50%; top:50%;
   transform: translate(-50%, -50%);
-  background: #ffffffcc;
+  background: #ffffffd9;
   color:#0b1020; font-size:12px; font-weight:700;
   padding:2px 10px; border-radius:10px; box-shadow:0 2px 8px #0001;
   white-space:nowrap;
@@ -107,9 +134,50 @@
 
 /* özet */
 .gantt-summary {
-  display:grid; grid-auto-flow:column; gap:36px; padding:12px 4px 0;
-  border-top:1px solid #eef0f6; margin-top:8px;
+  display:grid; grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:16px; margin-top:8px;
 }
-.gantt-summary-item{ min-width:110px; text-align:center; }
-.gantt-summary-item span{ font-size:2rem; font-weight:800; }
-.gantt-summary-item small{ color:#6c7085; }
+.gantt-summary-top { margin-bottom:16px; }
+.gantt-summary-item{
+  min-width:110px; text-align:left; padding:14px 16px;
+  border-radius:14px; background:#f7f8ff; border:1px solid #eef0f6;
+}
+.gantt-summary-item span{ font-size:1.6rem; font-weight:800; }
+.gantt-summary-item small{ color:#6c7085; display:block; margin-top:4px; }
+
+.gantt-frappe-card{
+  margin-top:28px; padding:18px; border-radius:16px;
+  border:1px solid #eef0f6; background:#f9faff;
+}
+.gantt-frappe-header h3{ margin:0 0 6px; }
+.gantt-frappe-header p{ margin:0; color:#6c7085; }
+.gantt-frappe-card .gantt-container,
+.gantt-frappe-card .gantt{
+  background:transparent;
+}
+.gantt-frappe{ overflow:auto; padding-top:12px; }
+
+.gantt-frappe-card .grid-background rect{
+  fill:#f4f6ff;
+}
+.gantt-frappe-card .grid-row rect{
+  fill:#ffffff;
+}
+.gantt-frappe-card .bar{
+  fill:#a5b4fc;
+}
+.gantt-frappe-card .bar-progress{
+  fill:#22c55e;
+}
+.gantt-frappe-card .bar-label{
+  fill:#0f172a;
+  font-weight:600;
+}
+
+@media (max-width: 900px) {
+  .gantt-header { flex-direction:column; align-items:flex-start; }
+  .gantt-summary { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .gantt-wrap { --info-width: 0px; }
+  .gantt-task-row { grid-template-columns: 1fr; }
+  .gantt-task-info, .gantt-calendar-days { margin-left:0; width:auto; }
+}

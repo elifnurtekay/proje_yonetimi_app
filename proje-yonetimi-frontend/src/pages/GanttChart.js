@@ -9,6 +9,17 @@ const INFO_WIDTH = 260;         // .gantt-task-info ile birebir
 const DAY_WIDTH  = 28;          // 1 gün = 28px
 const NARROW_PX  = 140;         // bu değerin altındaki çubuklarda iç metni gizleyip üst rozeti göster
 
+const STATUS_CLASS = {
+  Tamamlandı: "chip--success",
+  "Devam Ediyor": "chip--info",
+  Beklemede: "chip--warn",
+  Gecikmiş: "chip--danger",
+};
+
+function getStatusClass(status) {
+  return STATUS_CLASS[status] || "chip--info";
+}
+
 function calculateAutoProgress(task) {
   if (!task.start && !task.start_date) return 0;
   if (!task.end && !task.end_date) return 0;
@@ -71,29 +82,69 @@ export default function GanttChart() {
   return (
     <div className="gantt-container">
       <div className="gantt-header">
-        <h2>Gantt Chart</h2>
-        <select
-          className="gantt-project-select"
-          value={selectedProjectId}
-          onChange={(e) => setSelectedProject(e.target.value)}
-        >
-          {projects.map((p) => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
+        <div>
+          <h2 className="gantt-title">Gantt Planı</h2>
+          <p className="gantt-subtitle">Proje zaman çizelgesi ve ilerleme özeti</p>
+        </div>
+        <div className="gantt-controls">
+          <label className="gantt-select-label" htmlFor="gantt-project">
+            Proje
+          </label>
+          <select
+            id="gantt-project"
+            className="gantt-project-select"
+            value={selectedProjectId}
+            onChange={(e) => setSelectedProject(e.target.value)}
+          >
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <div className="gantt-card gantt-wrap">
+      <div className="gantt-card gantt-wrap" style={{ "--info-width": `${INFO_WIDTH}px` }}>
         {loading ? (
           <div>Yükleniyor...</div>
         ) : (
           <>
+            <div className="gantt-summary gantt-summary-top">
+              <div className="gantt-summary-item">
+                <span>{ganttData.length}</span>
+                <small>Toplam Görev</small>
+              </div>
+              <div className="gantt-summary-item">
+                <span>{ganttData.filter(g => g.status === "Tamamlandı").length}</span>
+                <small>Tamamlanan</small>
+              </div>
+              <div className="gantt-summary-item">
+                <span>{ganttData.filter(g => g.status !== "Tamamlandı").length}</span>
+                <small>Devam Eden</small>
+              </div>
+              <div className="gantt-summary-item">
+                <span>
+                  {ganttData.length > 0
+                    ? Math.round(
+                        ganttData.reduce((a, b) =>
+                          a + ((b.progress !== undefined && b.progress !== 0)
+                            ? b.progress
+                            : calculateAutoProgress(b)
+                          ), 0
+                        ) / ganttData.length
+                      )
+                    : 0
+                  }%
+                </span>
+                <small>Ortalama İlerleme</small>
+              </div>
+            </div>
+
             {/* Takvim satırı */}
             <div className="gantt-calendar">
               <div className="gantt-calendar-month">
                 {minDate.format("MMMM YYYY")} - {maxDate.format("MMMM YYYY")}
               </div>
-              <div className="gantt-calendar-days" style={{ marginLeft: INFO_WIDTH }}>
+              <div className="gantt-calendar-days">
                 {daysArray.map((d, i) => (
                   <div key={i} className="gantt-calendar-day" style={{ width: dayWidth }}>
                     {d.format("DD")}
@@ -116,10 +167,14 @@ export default function GanttChart() {
                         <div className="gantt-task-details">
                           <span>👤 {t.assignee || "-"}</span>
                           <span>🗓️ -</span>
-                          <span className="gantt-tag">Orta</span>
+                          {t.status ? (
+                            <span className={`chip gantt-status ${getStatusClass(t.status)}`}>
+                              {t.status}
+                            </span>
+                          ) : null}
                         </div>
                       </div>
-                      <div style={{ color:"#c00", fontSize:13 }}>Geçersiz tarih!</div>
+                      <div className="gantt-invalid">Geçersiz tarih aralığı</div>
                     </div>
                   );
                 }
@@ -146,7 +201,11 @@ export default function GanttChart() {
                       <div className="gantt-task-details">
                         <span>👤 {t.assignee || "-"}</span>
                         <span>🗓️ {start.format("YYYY-MM-DD")} - {end.format("YYYY-MM-DD")}</span>
-                        <span className="gantt-tag">Orta</span>
+                        {t.status ? (
+                          <span className={`chip gantt-status ${getStatusClass(t.status)}`}>
+                            {t.status}
+                          </span>
+                        ) : null}
                         {t.dependencies?.length ? (
                           <span style={{ color:"#b267ff" }}>🔗 {t.dependencies.join(", ")}</span>
                         ) : null}
@@ -191,41 +250,14 @@ export default function GanttChart() {
               })}
             </div>
 
-            {/* Özet */}
-            <div className="gantt-summary">
-              <div className="gantt-summary-item">
-                <span>{ganttData.length}</span>
-                <small>Toplam Görev</small>
-              </div>
-              <div className="gantt-summary-item">
-                <span>{ganttData.filter(g => g.status === "Tamamlandı").length}</span>
-                <small>Tamamlanan</small>
-              </div>
-              <div className="gantt-summary-item">
-                <span>{ganttData.filter(g => g.status !== "Tamamlandı").length}</span>
-                <small>Devam Eden</small>
-              </div>
-              <div className="gantt-summary-item">
-                <span>
-                  {ganttData.length > 0
-                    ? Math.round(
-                        ganttData.reduce((a, b) =>
-                          a + ((b.progress !== undefined && b.progress !== 0)
-                            ? b.progress
-                            : calculateAutoProgress(b)
-                          ), 0
-                        ) / ganttData.length
-                      )
-                    : 0
-                  }%
-                </span>
-                <small>Ortalama İlerleme</small>
-              </div>
-            </div>
-
             {/* Alternatif (Frappe) – mevcut davranış korunuyor */}
-            <div style={{ marginTop: 40 }}>
-              <h2>Alternatif Gantt (Frappe Gantt)</h2>
+            <div className="gantt-frappe-card">
+              <div className="gantt-frappe-header">
+                <div>
+                  <h3>Alternatif Gantt (Frappe)</h3>
+                  <p>Etkileşimli sürükle-bırak görünümü</p>
+                </div>
+              </div>
               <GanttChartFrappe ganttData={ganttData} />
             </div>
           </>

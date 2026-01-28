@@ -7,7 +7,6 @@ import {
   updateTask,
   fetchProjects,
   fetchUsers,
-  findUserByEmail,
   fetchTaskById,
   deleteTask, // opsiyonel
 } from "../api";

@@ -12,6 +12,7 @@ export default function GanttToolbar({
   onProjectChange,
   view,
   onViewChange,
+  currentYear,
   statusFilter,
   onStatusFilterChange,
   assigneeFilter,
@@ -44,6 +45,7 @@ export default function GanttToolbar({
               {opt.label}
             </button>
           ))}
+          <span className="gantt-year-badge">{currentYear}</span>
         </div>
       </div>
 
@@ -107,7 +109,7 @@ export default function GanttToolbar({
         </label>
 
         <div className="gantt-toolbar__actions">
-          <button type="button" className="gantt-btn" onClick={onTodayClick}>
+          <button type="button" className="gantt-btn gantt-btn--primary" onClick={onTodayClick}>
             Bugüne Git
           </button>
           <button type="button" className="gantt-btn ghost" onClick={onToggleList}>

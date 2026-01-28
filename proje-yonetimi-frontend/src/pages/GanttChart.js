@@ -178,6 +178,7 @@ export default function GanttChart() {
         onProjectChange={setSelectedProjectId}
         view={view}
         onViewChange={setView}
+        currentYear={rangeStart.format("YYYY")}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
         assigneeFilter={assigneeFilter}

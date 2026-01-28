@@ -38,6 +38,7 @@
   background: rgba(124, 92, 255, 0.12);
   border-radius: 999px;
   gap: 6px;
+  align-items: center;
 }
 
 .gantt-segment {
@@ -54,6 +55,16 @@
   background: linear-gradient(120deg, var(--primary), var(--primary-2));
   color: #fff;
   box-shadow: 0 10px 24px rgba(124, 92, 255, 0.26);
+}
+
+.gantt-year-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 12px;
+  border: 1px solid rgba(124, 92, 255, 0.2);
 }
 
 .gantt-toolbar__filters {
@@ -105,6 +116,11 @@
   min-width: 110px;
 }
 
+.gantt-btn--primary {
+  background: linear-gradient(120deg, #7c5cff, #9b7bff);
+  color: #fff;
+}
+
 .gantt-btn.ghost {
   background: rgba(124, 92, 255, 0.12);
   color: var(--primary);
@@ -149,7 +165,7 @@
 
 .gantt-list__header {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 0.7fr 1fr;
+  grid-template-columns: minmax(160px, 1.4fr) 120px 110px 100px 100px;
   gap: 12px;
   padding: 14px 16px;
   font-size: 12px;
@@ -168,11 +184,11 @@
 
 .gantt-list__row {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 0.7fr 1fr;
+  grid-template-columns: minmax(160px, 1.4fr) 120px 110px 100px 100px;
   gap: 12px;
   align-items: center;
   padding: 14px 16px;
-  min-height: 64px;
+  min-height: 72px;
   border-bottom: 1px solid rgba(228, 231, 242, 0.6);
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
@@ -188,6 +204,12 @@
   text-overflow: ellipsis;
 }
 
+.gantt-list__cell .gantt-status {
+  display: inline-flex;
+  justify-content: center;
+  min-width: 82px;
+}
+
 .gantt-list__row:hover {
   background: rgba(124, 92, 255, 0.08);
   transform: translateX(4px);
@@ -200,7 +222,7 @@
 .gantt-list__title {
   font-weight: 700;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -209,6 +231,7 @@
 .gantt-list__warning {
   font-size: 12px;
   color: var(--muted);
+  white-space: nowrap;
 }
 
 .gantt-list__warning {
@@ -258,6 +281,7 @@
   font-size: 12px;
   margin-top: 4px;
   color: var(--muted);
+  text-align: right;
 }
 
 .gantt-timeline-wrapper {
@@ -370,11 +394,11 @@
 
 .gantt-timeline__row {
   position: relative;
-  height: 64px;
+  height: 72px;
 }
 
 .gantt-timeline__row.is-invalid {
-  height: 64px;
+  height: 72px;
 }
 
 .gantt-bar {

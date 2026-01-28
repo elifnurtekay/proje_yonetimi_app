@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchGanttTasks, fetchProjects } from "../api";
 import GanttToolbar from "../components/gantt/GanttToolbar";
 import TaskDetailsDrawer from "../components/gantt/TaskDetailsDrawer";
@@ -12,6 +13,7 @@ const VIEW_CONFIG = {
   day: { dayWidth: 40 },
   week: { dayWidth: 22 },
   month: { dayWidth: 12 },
+  year: { dayWidth: 6 },
 };
 
 const STATUS_ALIASES = {
@@ -52,6 +54,7 @@ export default function GanttChart() {
   const [isListVisible, setIsListVisible] = useState(true);
 
   const timelineRef = useRef(null);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("access");
 
@@ -151,7 +154,7 @@ export default function GanttChart() {
       if (task.start.isBefore(min)) min = task.start;
       if (task.end.isAfter(max)) max = task.end;
     });
-    const padding = view === "month" ? 14 : view === "week" ? 7 : 3;
+    const padding = view === "year" ? 30 : view === "month" ? 14 : view === "week" ? 7 : 3;
     return {
       rangeStart: min.subtract(padding, "day"),
       rangeEnd: max.add(padding, "day"),
@@ -170,6 +173,16 @@ export default function GanttChart() {
     setSelectedTask(task);
   };
 
+  const handleViewTask = (task) => {
+    if (!task?.id) return;
+    navigate(`/gorevler?view=${task.id}`);
+  };
+
+  const handleEditTask = (task) => {
+    if (!task?.id) return;
+    navigate(`/gorevler?edit=${task.id}`);
+  };
+
   return (
     <div className="gantt-page gantt-theme">
       <GanttToolbar
@@ -178,7 +191,6 @@ export default function GanttChart() {
         onProjectChange={setSelectedProjectId}
         view={view}
         onViewChange={setView}
-        currentYear={rangeStart.format("YYYY")}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
         assigneeFilter={assigneeFilter}
@@ -225,7 +237,12 @@ export default function GanttChart() {
         )}
       </div>
 
-      <TaskDetailsDrawer task={selectedTask} onClose={() => setSelectedTask(null)} />
+      <TaskDetailsDrawer
+        task={selectedTask}
+        onClose={() => setSelectedTask(null)}
+        onView={handleViewTask}
+        onEdit={handleEditTask}
+      />
     </div>
   );
 }

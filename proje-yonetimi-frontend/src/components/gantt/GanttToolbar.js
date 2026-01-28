@@ -4,6 +4,7 @@ const VIEW_OPTIONS = [
   { key: "day", label: "Gün" },
   { key: "week", label: "Hafta" },
   { key: "month", label: "Ay" },
+  { key: "year", label: "Yıl" },
 ];
 
 export default function GanttToolbar({
@@ -12,7 +13,6 @@ export default function GanttToolbar({
   onProjectChange,
   view,
   onViewChange,
-  currentYear,
   statusFilter,
   onStatusFilterChange,
   assigneeFilter,
@@ -45,7 +45,6 @@ export default function GanttToolbar({
               {opt.label}
             </button>
           ))}
-          <span className="gantt-year-badge">{currentYear}</span>
         </div>
       </div>
 

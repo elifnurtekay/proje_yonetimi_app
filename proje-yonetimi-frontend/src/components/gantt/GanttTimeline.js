@@ -62,14 +62,18 @@ export default function GanttTimeline({
           {Array.from({ length: totalDays }).map((_, index) => {
             const date = rangeStart.add(index, "day");
             const isWeekStart = date.day() === 1;
+            const isMonthStart = date.date() === 1;
             const showLabel = view === "day"
               || (view === "week" && isWeekStart)
-              || (view === "month" && index % 7 === 0);
-            const label = view === "month"
-              ? date.format("D")
-              : view === "week" && isWeekStart
-                ? date.format("DD MMM")
-                : date.format("DD");
+              || (view === "month" && index % 7 === 0)
+              || (view === "year" && isMonthStart);
+            const label = view === "year"
+              ? date.format("MMM")
+              : view === "month"
+                ? date.format("D")
+                : view === "week" && isWeekStart
+                  ? date.format("DD MMM")
+                  : date.format("DD");
             return (
               <div
                 key={date.format("YYYY-MM-DD")}

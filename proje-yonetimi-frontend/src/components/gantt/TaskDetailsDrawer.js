@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function TaskDetailsDrawer({ task, onClose }) {
+export default function TaskDetailsDrawer({ task, onClose, onView, onEdit }) {
   if (!task) return null;
 
   return (
@@ -41,10 +41,10 @@ export default function TaskDetailsDrawer({ task, onClose }) {
           ) : null}
         </div>
         <div className="gantt-drawer__actions">
-          <button type="button" className="gantt-btn">
+          <button type="button" className="gantt-btn" onClick={() => onView?.(task)}>
             Görüntüle
           </button>
-          <button type="button" className="gantt-btn ghost">
+          <button type="button" className="gantt-btn ghost" onClick={() => onEdit?.(task)}>
             Düzenle
           </button>
         </div>

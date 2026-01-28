@@ -1,5 +1,6 @@
 // src/pages/Gorevler.js
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   fetchTasks,
   addTask,
@@ -15,6 +16,7 @@ import { ensureEffectiveProgress, ensureListEffectiveProgress } from "../utils/p
 
 export default function Gorevler() {
   const token = localStorage.getItem("access");
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [tasks, setTasks] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -138,7 +140,7 @@ export default function Gorevler() {
   };
 
   // ————— G Ö R Ü N T Ü L E —————
-  const openView = async (id) => {
+  const openView = useCallback(async (id) => {
     try {
       const data = await fetchTaskById(id, token);
       setViewData(ensureEffectiveProgress(data, { startKey: "start_date", dueKey: "due_date" }));
@@ -146,10 +148,10 @@ export default function Gorevler() {
     } catch (e) {
       alert(e.message || "Görev alınamadı");
     }
-  };
+  }, [token]);
 
   // ————— D Ü Z E N L E —————
-  const openEdit = async (id) => {
+  const openEdit = useCallback(async (id) => {
     try {
       const data = await fetchTaskById(id, token);
       const normalized = ensureEffectiveProgress(data, { startKey: "start_date", dueKey: "due_date" });
@@ -172,7 +174,24 @@ export default function Gorevler() {
     } catch (e) {
       alert(e.message || "Görev alınamadı");
     }
-  };
+  }, [token, users]);
+
+  useEffect(() => {
+    if (!users.length) return;
+    const editParam = searchParams.get("edit");
+    const viewParam = searchParams.get("view");
+
+    if (editParam) {
+      openEdit(Number(editParam));
+      setSearchParams({}, { replace: true });
+      return;
+    }
+
+    if (viewParam) {
+      openView(Number(viewParam));
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, users.length, setSearchParams, openEdit, openView]);
 
   const handleEditSave = async (e) => {
     e.preventDefault();
